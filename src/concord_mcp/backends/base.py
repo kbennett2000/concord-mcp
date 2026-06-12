@@ -94,6 +94,20 @@ class ConcordBackend(Protocol):
         """Return the shape of GET /v1/topics/{id}/verses."""
         ...
 
+    async def search_keyword(
+        self, query: str, translations: list[str] | None = None, limit: int = 10
+    ) -> dict[str, Any]:
+        """Return the shape of GET /v1/search (single or multi-translation)."""
+        ...
+
+    async def translations(self) -> dict[str, Any]:
+        """Return the shape of GET /v1/translations."""
+        ...
+
+    async def books(self) -> dict[str, Any]:
+        """Return the shape of GET /v1/books."""
+        ...
+
     async def places_for_passage(self, reference: str) -> dict[str, Any]:
         """Return the shape of GET /v1/verses/{ref}/places."""
         ...
