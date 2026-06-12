@@ -56,7 +56,7 @@ claude mcp add concord --env CONCORD_URL=http://192.168.1.62:8000 \
 ### MCP Inspector (manual harness)
 
 ```bash
-CONCORD_URL=http://192.168.1.62:8000 npx @modelcontextprotocol/inspector uv run concord-mcp
+npx @modelcontextprotocol/inspector -e CONCORD_URL=http://192.168.1.62:8000 uv run concord-mcp
 ```
 
 ## Tools (slice 1)
