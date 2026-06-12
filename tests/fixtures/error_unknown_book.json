@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "unknown_book",
+    "message": "Unknown book 'Hezekiah'.",
+    "detail": {}
+  }
+}

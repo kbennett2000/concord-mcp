@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "unparseable_reference",
+    "message": "Could not parse 'foo bar' as a Scripture reference.",
+    "detail": {}
+  }
+}

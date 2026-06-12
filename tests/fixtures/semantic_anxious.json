@@ -1,0 +1,31 @@
+{
+  "query": "do not be anxious",
+  "translation": "KJV",
+  "count": 3,
+  "results": [
+    {
+      "book": "PHP",
+      "chapter": 4,
+      "verse": 6,
+      "reference": "Philippians 4:6",
+      "score": 0.9312,
+      "text": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God."
+    },
+    {
+      "book": "MAT",
+      "chapter": 6,
+      "verse": 25,
+      "reference": "Matthew 6:25",
+      "score": 0.9011,
+      "text": "Therefore I say unto you, Take no thought for your life, what ye shall eat, or what ye shall drink; nor yet for your body, what ye shall put on."
+    },
+    {
+      "book": "1PE",
+      "chapter": 5,
+      "verse": 7,
+      "reference": "1 Peter 5:7",
+      "score": 0.8847,
+      "text": "Casting all your care upon him; for he careth for you."
+    }
+  ]
+}
