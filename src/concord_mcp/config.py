@@ -7,11 +7,16 @@ local Concord.
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import Path
 
 DEFAULT_CONCORD_URL = "http://localhost:8000"
 DEFAULT_TRANSLATION = "KJV"
 DEFAULT_TIMEOUT_S = 10.0
 DEFAULT_MAX_RESULTS = 25
+# Defaults match the `make get-db` output paths (ADR 0004); relative paths
+# resolve against the working directory (the repo root under `uv --directory`).
+DEFAULT_BIBLE_DB_PATH = Path("data/concord/bible.db")
+DEFAULT_SEMANTIC_ASSETS = Path("data/concord/semantic")
 
 
 @dataclass(frozen=True)
@@ -21,17 +26,15 @@ class Config:
     default_translation: str = DEFAULT_TRANSLATION
     timeout_s: float = DEFAULT_TIMEOUT_S
     max_results: int = DEFAULT_MAX_RESULTS
+    bible_db_path: Path = DEFAULT_BIBLE_DB_PATH
+    semantic_assets: Path = DEFAULT_SEMANTIC_ASSETS
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> "Config":
         if env is None:
             env = os.environ
         backend = env.get("CONCORD_MCP_BACKEND", "http")
-        if backend == "inprocess":
-            raise NotImplementedError(
-                "CONCORD_MCP_BACKEND=inprocess ships in slice 2; use http for now."
-            )
-        if backend != "http":
+        if backend not in ("http", "inprocess"):
             raise ValueError(
                 f"CONCORD_MCP_BACKEND must be 'http' or 'inprocess', got {backend!r}."
             )
@@ -43,4 +46,8 @@ class Config:
             ),
             timeout_s=float(env.get("CONCORD_MCP_TIMEOUT_S", DEFAULT_TIMEOUT_S)),
             max_results=int(env.get("CONCORD_MCP_MAX_RESULTS", DEFAULT_MAX_RESULTS)),
+            bible_db_path=Path(env.get("BIBLE_DB_PATH", DEFAULT_BIBLE_DB_PATH)),
+            semantic_assets=Path(
+                env.get("CONCORD_SEMANTIC_ASSETS", DEFAULT_SEMANTIC_ASSETS)
+            ),
         )
