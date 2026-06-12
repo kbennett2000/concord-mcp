@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "unknown_translation",
+    "message": "Translation 'NIV' is not loaded.",
+    "detail": {}
+  }
+}

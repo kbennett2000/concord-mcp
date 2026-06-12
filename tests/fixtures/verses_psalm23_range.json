@@ -1,0 +1,36 @@
+{
+  "reference": "Psalm 23:1-3",
+  "translations": ["KJV", "YLT"],
+  "verses": [
+    {
+      "book": "PSA",
+      "chapter": 23,
+      "verse": 1,
+      "reference": "Psalm 23:1",
+      "text": {
+        "KJV": "The LORD is my shepherd; I shall not want.",
+        "YLT": null
+      }
+    },
+    {
+      "book": "PSA",
+      "chapter": 23,
+      "verse": 2,
+      "reference": "Psalm 23:2",
+      "text": {
+        "KJV": "He maketh me to lie down in green pastures: he leadeth me beside the still waters.",
+        "YLT": null
+      }
+    },
+    {
+      "book": "PSA",
+      "chapter": 23,
+      "verse": 3,
+      "reference": "Psalm 23:3",
+      "text": {
+        "KJV": "He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake.",
+        "YLT": null
+      }
+    }
+  ]
+}
