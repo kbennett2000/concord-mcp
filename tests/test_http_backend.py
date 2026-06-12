@@ -164,3 +164,57 @@ async def test_get_verses_503_is_not_retried(backend, fixture, no_sleep):
         await backend.get_verses("John 3:16")
     assert route.call_count == 1
     assert no_sleep == []
+
+
+@respx.mock
+async def test_cross_references_params(backend, fixture):
+    route = respx.get(f"{BASE}/v1/cross-references/John%203%3A16").respond(
+        json=fixture("xrefs_john316_text")
+    )
+    await backend.cross_references("John 3:16", include_text=True, limit=10)
+    params = route.calls.last.request.url.params
+    assert params["include_text"] == "true"
+    assert params["translation"] == "KJV"  # explicit default, as with semantic
+    assert params["limit"] == "10"
+
+
+@respx.mock
+async def test_cross_references_omits_translation_without_text(backend, fixture):
+    route = respx.get(f"{BASE}/v1/cross-references/John%203%3A16").respond(
+        json=fixture("xrefs_john316")
+    )
+    await backend.cross_references("John 3:16")
+    params = route.calls.last.request.url.params
+    assert "include_text" not in params
+    assert "translation" not in params
+
+
+@respx.mock
+async def test_word_study_sends_no_text_param(backend, fixture):
+    route = respx.get(f"{BASE}/v1/verses/John%2021%3A15/words").respond(
+        json=fixture("words_john2115")
+    )
+    await backend.word_study("John 21:15")
+    assert "text" not in route.calls.last.request.url.params
+
+
+@respx.mock
+async def test_strongs_verses_params(backend, fixture):
+    route = respx.get(f"{BASE}/v1/strongs/G5368/verses").respond(
+        json=fixture("strongs_g5368_verses_p2")
+    )
+    await backend.strongs_verses("G5368", limit=2)
+    params = route.calls.last.request.url.params
+    assert params["limit"] == "2"
+    assert params["translation"] == "KJV"
+
+
+@respx.mock
+async def test_topic_verses_without_text_omits_translation(backend, fixture):
+    route = respx.get(f"{BASE}/v1/topics/care/verses").respond(
+        json=fixture("topic_care_verses")
+    )
+    await backend.topic_verses("care", include_text=False)
+    params = route.calls.last.request.url.params
+    assert params["include_text"] == "false"
+    assert "translation" not in params
