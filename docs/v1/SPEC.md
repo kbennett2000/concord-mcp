@@ -114,15 +114,17 @@ all are `idempotentHint: true` except `random_verse`.
 ## 5. Response format rules
 
 - **Compact plain text**, model-quotable and token-frugal — not raw JSON
-  dumps. Structured output may additionally be attached where the current
-  SDK makes it cheap (confirmed in the slice 1 plan), but the text content
-  must stand alone.
+  dumps. Structured output is deferred for v1: dual text+structured isn't
+  cheap in MCP SDK 1.x; revisit at SDK v2.
 - Every verse line: `John 3:16 (KJV) — For God so loved the world…`. The
   reference + translation tag is non-negotiable; it is what lets the model
   cite verifiably.
 - Default `limit` 10 where applicable; server-side clamp at
-  `CONCORD_MCP_MAX_RESULTS` (25). Result sets state truncation explicitly
-  ("showing 10 of 143 — narrow the query or raise limit").
+  `CONCORD_MCP_MAX_RESULTS` (25). Result sets state truncation explicitly:
+  when the API provides a true total, "showing {n} of {total}"; when it
+  doesn't (semantic search), "top {n} matches — raise limit or add
+  min_score to narrow". Keyword search (S3) uses whichever applies per
+  Concord's actual response shape, read at S3 time.
 - **Honesty passthrough:**
   - Place lines carry status verbatim: `identified` / `disputed` /
     `unknown` / `symbolic` / `multiple`. An `unknown` place renders as
@@ -150,7 +152,7 @@ local Concord.
 |---|---|---|
 | `CONCORD_MCP_BACKEND` | `http` | `http` or `inprocess`. |
 | `CONCORD_URL` | `http://localhost:8000` | Concord base URL (`http` mode). |
-| `CONCORD_MCP_DEFAULT_TRANSLATION` | `KJV` | Used when the caller omits a translation. Mirrors Concord's default. |
+| `CONCORD_MCP_DEFAULT_TRANSLATION` | `KJV` | Used when the caller omits a translation. Mirrors Concord's default. Always sent explicitly to the semantic-search endpoint, which would otherwise default to WEB. |
 | `CONCORD_MCP_TIMEOUT_S` | `10` | Per-request timeout (`http` mode). Aligned with Concord's semantic deadline. |
 | `CONCORD_MCP_MAX_RESULTS` | `25` | Server-side clamp on any `limit`. |
 | `BIBLE_DB_PATH` | — | Path to `bible.db` (`inprocess` mode). |
