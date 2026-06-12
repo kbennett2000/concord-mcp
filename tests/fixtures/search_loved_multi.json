@@ -1,0 +1,25 @@
+{
+  "query": "loved",
+  "translation": "KJV",
+  "translations": [
+    "KJV",
+    "WEB"
+  ],
+  "book": null,
+  "limit": 10,
+  "offset": 0,
+  "total": 1,
+  "hits": [
+    {
+      "book": "JHN",
+      "chapter": 3,
+      "verse": 16,
+      "reference": "John 3:16",
+      "snippet": "For God so <mark>loved</mark> the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+      "matches": {
+        "KJV": "For God so <mark>loved</mark> the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+        "WEB": "For God so <mark>loved</mark> the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life."
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "invalid_search_query",
+    "message": "the search query is not a valid FTS5 expression",
+    "detail": {
+      "fts5_error": "fts5: syntax error near \"\\\"\""
+    }
+  }
+}

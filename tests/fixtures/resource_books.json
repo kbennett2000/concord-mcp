@@ -1,0 +1,466 @@
+{
+  "books": [
+    {
+      "id": "GEN",
+      "name": "Genesis",
+      "testament": "OT",
+      "chapter_count": 1,
+      "canonical_order": 1
+    },
+    {
+      "id": "EXO",
+      "name": "Exodus",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 2
+    },
+    {
+      "id": "LEV",
+      "name": "Leviticus",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 3
+    },
+    {
+      "id": "NUM",
+      "name": "Numbers",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 4
+    },
+    {
+      "id": "DEU",
+      "name": "Deuteronomy",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 5
+    },
+    {
+      "id": "JOS",
+      "name": "Joshua",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 6
+    },
+    {
+      "id": "JDG",
+      "name": "Judges",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 7
+    },
+    {
+      "id": "RUT",
+      "name": "Ruth",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 8
+    },
+    {
+      "id": "1SA",
+      "name": "1 Samuel",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 9
+    },
+    {
+      "id": "2SA",
+      "name": "2 Samuel",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 10
+    },
+    {
+      "id": "1KI",
+      "name": "1 Kings",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 11
+    },
+    {
+      "id": "2KI",
+      "name": "2 Kings",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 12
+    },
+    {
+      "id": "1CH",
+      "name": "1 Chronicles",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 13
+    },
+    {
+      "id": "2CH",
+      "name": "2 Chronicles",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 14
+    },
+    {
+      "id": "EZR",
+      "name": "Ezra",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 15
+    },
+    {
+      "id": "NEH",
+      "name": "Nehemiah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 16
+    },
+    {
+      "id": "EST",
+      "name": "Esther",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 17
+    },
+    {
+      "id": "JOB",
+      "name": "Job",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 18
+    },
+    {
+      "id": "PSA",
+      "name": "Psalms",
+      "testament": "OT",
+      "chapter_count": 2,
+      "canonical_order": 19
+    },
+    {
+      "id": "PRO",
+      "name": "Proverbs",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 20
+    },
+    {
+      "id": "ECC",
+      "name": "Ecclesiastes",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 21
+    },
+    {
+      "id": "SNG",
+      "name": "Song of Solomon",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 22
+    },
+    {
+      "id": "ISA",
+      "name": "Isaiah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 23
+    },
+    {
+      "id": "JER",
+      "name": "Jeremiah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 24
+    },
+    {
+      "id": "LAM",
+      "name": "Lamentations",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 25
+    },
+    {
+      "id": "EZK",
+      "name": "Ezekiel",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 26
+    },
+    {
+      "id": "DAN",
+      "name": "Daniel",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 27
+    },
+    {
+      "id": "HOS",
+      "name": "Hosea",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 28
+    },
+    {
+      "id": "JOL",
+      "name": "Joel",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 29
+    },
+    {
+      "id": "AMO",
+      "name": "Amos",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 30
+    },
+    {
+      "id": "OBA",
+      "name": "Obadiah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 31
+    },
+    {
+      "id": "JON",
+      "name": "Jonah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 32
+    },
+    {
+      "id": "MIC",
+      "name": "Micah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 33
+    },
+    {
+      "id": "NAM",
+      "name": "Nahum",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 34
+    },
+    {
+      "id": "HAB",
+      "name": "Habakkuk",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 35
+    },
+    {
+      "id": "ZEP",
+      "name": "Zephaniah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 36
+    },
+    {
+      "id": "HAG",
+      "name": "Haggai",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 37
+    },
+    {
+      "id": "ZEC",
+      "name": "Zechariah",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 38
+    },
+    {
+      "id": "MAL",
+      "name": "Malachi",
+      "testament": "OT",
+      "chapter_count": null,
+      "canonical_order": 39
+    },
+    {
+      "id": "MAT",
+      "name": "Matthew",
+      "testament": "NT",
+      "chapter_count": 1,
+      "canonical_order": 40
+    },
+    {
+      "id": "MRK",
+      "name": "Mark",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 41
+    },
+    {
+      "id": "LUK",
+      "name": "Luke",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 42
+    },
+    {
+      "id": "JHN",
+      "name": "John",
+      "testament": "NT",
+      "chapter_count": 2,
+      "canonical_order": 43
+    },
+    {
+      "id": "ACT",
+      "name": "Acts",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 44
+    },
+    {
+      "id": "ROM",
+      "name": "Romans",
+      "testament": "NT",
+      "chapter_count": 2,
+      "canonical_order": 45
+    },
+    {
+      "id": "1CO",
+      "name": "1 Corinthians",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 46
+    },
+    {
+      "id": "2CO",
+      "name": "2 Corinthians",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 47
+    },
+    {
+      "id": "GAL",
+      "name": "Galatians",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 48
+    },
+    {
+      "id": "EPH",
+      "name": "Ephesians",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 49
+    },
+    {
+      "id": "PHP",
+      "name": "Philippians",
+      "testament": "NT",
+      "chapter_count": 1,
+      "canonical_order": 50
+    },
+    {
+      "id": "COL",
+      "name": "Colossians",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 51
+    },
+    {
+      "id": "1TH",
+      "name": "1 Thessalonians",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 52
+    },
+    {
+      "id": "2TH",
+      "name": "2 Thessalonians",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 53
+    },
+    {
+      "id": "1TI",
+      "name": "1 Timothy",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 54
+    },
+    {
+      "id": "2TI",
+      "name": "2 Timothy",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 55
+    },
+    {
+      "id": "TIT",
+      "name": "Titus",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 56
+    },
+    {
+      "id": "PHM",
+      "name": "Philemon",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 57
+    },
+    {
+      "id": "HEB",
+      "name": "Hebrews",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 58
+    },
+    {
+      "id": "JAS",
+      "name": "James",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 59
+    },
+    {
+      "id": "1PE",
+      "name": "1 Peter",
+      "testament": "NT",
+      "chapter_count": 1,
+      "canonical_order": 60
+    },
+    {
+      "id": "2PE",
+      "name": "2 Peter",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 61
+    },
+    {
+      "id": "1JN",
+      "name": "1 John",
+      "testament": "NT",
+      "chapter_count": 1,
+      "canonical_order": 62
+    },
+    {
+      "id": "2JN",
+      "name": "2 John",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 63
+    },
+    {
+      "id": "3JN",
+      "name": "3 John",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 64
+    },
+    {
+      "id": "JUD",
+      "name": "Jude",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 65
+    },
+    {
+      "id": "REV",
+      "name": "Revelation",
+      "testament": "NT",
+      "chapter_count": null,
+      "canonical_order": 66
+    }
+  ]
+}
