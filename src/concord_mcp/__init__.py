@@ -6,5 +6,7 @@ __version__ = version("concord-mcp")
 
 
 def main() -> None:
-    """Placeholder entry point. The MCP server lands in slice 1."""
-    print(f"concord-mcp {__version__}")
+    """Console-script entry point: run the MCP server on stdio."""
+    from concord_mcp.server import main as run_server
+
+    run_server()
