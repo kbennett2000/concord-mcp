@@ -10,18 +10,6 @@ you is fetched from a real Bible on your own computer**, with a reference like
 **Are you a developer?** Everything technical is in
 [docs/DEVELOPERS.md](docs/DEVELOPERS.md).
 
-## See it
-
-Here's a real conversation — one of the questions from this project's
-acceptance run, asked in Claude Desktop with concord-mcp connected:
-
-<!-- Bobby: paste your Claude Desktop transcript from the eval gate run here.
-     Real output only — this block ships empty until the gate run. -->
-> *(transcript pending — this section shows a real captured conversation, never
-> an invented one)*
-
-Notice what the assistant did: it didn't recite. It looked the passage up,
-word by word, and every quote came back with its address.
 
 ## What this actually is, in plain words
 
