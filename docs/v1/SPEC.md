@@ -132,8 +132,25 @@ all are `idempotentHint: true` except `random_verse`.
     and never as 0,0.
   - Journey output opens with: "one commonly proposed reconstruction
     (source: …)" plus dating, before the ordered stops.
-- Word-study lines: ordinal, surface form, transliteration, Strong's id,
-  gloss — one token per line.
+- Word-study lines: `position. surface — lemma (transliteration, strongs_id,
+  morph) — gloss`, one token per line; an untagged token renders
+  `position. surface — [untagged]`. The upstream tokens payload carries no
+  verse labels; verse boundaries are detected by `position` resets. When the
+  requested reference expands to an explicit verse list whose length equals
+  the block count, blocks are labeled with their verses; on any mismatch
+  (token-less verse, whole-chapter or cross-chapter span) blocks render
+  unlabeled, separated by blank lines — never best-effort labels. Output is
+  capped at 10 verse blocks: "showing first 10 of {n} verses — request a
+  narrower range".
+- Cross-reference lines carry the target reference (ranges included), the
+  community vote count verbatim (`Romans 5:8 (KJV) [votes 968] — …`), and —
+  with `include_text` — the target's opening verse only, stated in the header.
+- Strong's entries render lemma, transliteration, language (Greek/Hebrew),
+  gloss, full definition, and the lexicon `source` attribution verbatim;
+  occurrence lists are ordinary tagged verse lines with a true total.
+- Topic output opens `Topic: {NAME} (Nave's Topical Bible) — {total} verses:`;
+  "See X" redirects are followed one hop and labeled as such; ambiguous names
+  return the candidate list (ids included) instead of verses.
 
 ## 6. Resources
 
@@ -169,6 +186,11 @@ Errors are written for the model to self-correct from:
   CONCORD_URL.)"
 - `503` + `Retry-After` from semantic search → surface as "Concord is busy;
   retry in {n}s" and honor one polite retry; no retry storms.
+- Unknown or malformed Strong's id → echo Concord's detail and restate the
+  id format with examples (`G26`, `H7225`) and where to find ids
+  (`word_study`).
+- Unknown topic id → restate that Nave's indexes classic subjects and point
+  free-form ideas at `search_by_meaning`.
 - Missing semantic artifacts (`inprocess`) → name the two fixes: switch to
   `http` mode, or run the acquisition steps (ADR 0004).
 - Missing `bible.db` (`inprocess`) → name both fixes: run `make get-db`, or
