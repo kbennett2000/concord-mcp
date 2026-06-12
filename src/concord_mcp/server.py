@@ -171,7 +171,9 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
 def main() -> None:
     config = Config.from_env()
     backend: ConcordBackend = (
-        InProcessBackend(config) if config.backend == "inprocess" else HttpBackend(config)
+        InProcessBackend(config)
+        if config.backend == "inprocess"
+        else HttpBackend(config)
     )
     server = create_server(config, backend)
     server.run()

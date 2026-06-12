@@ -96,9 +96,9 @@ class InProcessBackend:
 
         by_position: dict[tuple[int, int], dict[str, str]] = {}
         for row in result.rows:
-            by_position.setdefault((row.chapter, row.verse), {})[
-                row.translation_id
-            ] = row.text
+            by_position.setdefault((row.chapter, row.verse), {})[row.translation_id] = (
+                row.text
+            )
         return {
             "reference": result.reference,
             "translations": list(result.translations),
@@ -207,7 +207,5 @@ class InProcessBackend:
             if tid not in resolved:
                 resolved.append(tid)
         return (
-            tuple(resolved)
-            if resolved
-            else (self._config.default_translation.upper(),)
+            tuple(resolved) if resolved else (self._config.default_translation.upper(),)
         )

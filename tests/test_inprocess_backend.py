@@ -60,7 +60,9 @@ async def test_semantic_matches_the_http_fixture_exactly(inprocess_backend, fixt
 
 
 async def test_semantic_min_score_floor(inprocess_backend, fixture):
-    payload = await inprocess_backend.semantic_search("do not be anxious", min_score=0.9)
+    payload = await inprocess_backend.semantic_search(
+        "do not be anxious", min_score=0.9
+    )
     assert payload == fixture("semantic_anxious_min090")
 
 

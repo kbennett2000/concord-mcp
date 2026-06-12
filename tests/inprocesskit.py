@@ -16,7 +16,12 @@ from typing import Any
 
 import numpy as np
 from bible_core.loader import build_database
-from bible_semantic.model import EMBEDDING_DIM, MODEL_ID, MODEL_REVISION, model_precision
+from bible_semantic.model import (
+    EMBEDDING_DIM,
+    MODEL_ID,
+    MODEL_REVISION,
+    model_precision,
+)
 from bible_semantic.schema import create_embeddings_schema
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -30,7 +35,9 @@ def _chapter(number: int, verses: list[dict[str, Any]]) -> dict[str, Any]:
     return {"number": number, "verses": verses, "headings": [], "footnotes": []}
 
 
-def _book(abbreviation: str, order_index: int, chapters: list[dict[str, Any]]) -> dict[str, Any]:
+def _book(
+    abbreviation: str, order_index: int, chapters: list[dict[str, Any]]
+) -> dict[str, Any]:
     return {
         "abbreviation": abbreviation,
         "name": abbreviation,
@@ -235,7 +242,15 @@ def build_embeddings_db(target_dir: Path, *, model_id: str = MODEL_ID) -> Path:
         create_embeddings_schema(conn)
         conn.execute(
             "INSERT INTO embedding_meta VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (model_id, MODEL_REVISION, EMBEDDING_DIM, model_precision(), "WEB", 1, "test"),
+            (
+                model_id,
+                MODEL_REVISION,
+                EMBEDDING_DIM,
+                model_precision(),
+                "WEB",
+                1,
+                "test",
+            ),
         )
         for book_id, chapter, verse, hot_index in _STORE_ROWS:
             vec = np.zeros(EMBEDDING_DIM, dtype=np.float32)
