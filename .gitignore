@@ -1,0 +1,17 @@
+# Python / uv
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Local environment
+.env
+
+# Data that never lands in git (see CLAUDE.md and ADR 0004)
+data/private/
+*.db
+models/
+vectors/
+
+# Local Claude Code settings
+.claude/settings.local.json
