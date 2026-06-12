@@ -153,3 +153,13 @@ async def test_random_draws_stay_in_the_filtered_universe(inprocess_backend):
         assert verse["text"]
         seen.add((verse["chapter"], verse["verse"]))
     assert len(seen) >= 2
+
+
+async def test_seeded_phrase_search_finds_still_waters(inprocess_backend):
+    """The S5-plan FTS finding, kept as a regression test: the loader builds
+    verses_fts for the synthetic db, so quoted-phrase search works hermetically."""
+    payload = await inprocess_backend.search_keyword('"still waters"')
+    assert payload["total"] == 1
+    hit = payload["hits"][0]
+    assert hit["reference"] == "Psalms 23:2"
+    assert "still waters" in hit["snippet"]
