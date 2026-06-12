@@ -1,0 +1,10 @@
+{
+  "q": "kindness",
+  "section": null,
+  "limit": 10,
+  "offset": 0,
+  "total": 1,
+  "topics": [
+    {"id": "kindness", "name": "KINDNESS", "section": "K", "see_also": "care"}
+  ]
+}

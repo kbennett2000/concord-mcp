@@ -1,0 +1,10 @@
+{
+  "reference": "John 21:15",
+  "text_id": "SBLGNT",
+  "total": 3,
+  "tokens": [
+    {"position": 1, "surface_form": "ἀγαπᾷς", "strongs_id": "G25", "morph_code": "V-PAI-2S", "lemma": "ἀγαπάω", "transliteration": "agapaō", "gloss": "to love"},
+    {"position": 2, "surface_form": "καί", "strongs_id": null, "morph_code": null, "lemma": null, "transliteration": null, "gloss": null},
+    {"position": 3, "surface_form": "φιλῶ", "strongs_id": "G5368", "morph_code": "V-PAI-1S", "lemma": "φιλέω", "transliteration": "phileō", "gloss": "to have affection for"}
+  ]
+}

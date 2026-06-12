@@ -1,0 +1,25 @@
+{
+  "strongs_id": "G5368",
+  "text_id": "SBLGNT",
+  "translation": "KJV",
+  "include_text": true,
+  "limit": 2,
+  "offset": 0,
+  "total": 3,
+  "verses": [
+    {
+      "book": "JHN",
+      "chapter": 21,
+      "verse": 15,
+      "reference": "John 21:15",
+      "text": "So when they had dined, Jesus saith to Simon Peter, Simon, son of Jonas, lovest thou me more than these? He saith unto him, Yea, Lord; thou knowest that I love thee. He saith unto him, Feed my lambs."
+    },
+    {
+      "book": "JHN",
+      "chapter": 21,
+      "verse": 16,
+      "reference": "John 21:16",
+      "text": "He saith to him again the second time, Simon, son of Jonas, lovest thou me? He saith unto him, Yea, Lord; thou knowest that I love thee. He saith unto him, Feed my sheep."
+    }
+  ]
+}

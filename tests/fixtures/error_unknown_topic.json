@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "unknown_topic",
+    "message": "no topic with id 'caare'",
+    "detail": {"topic_id": "caare"}
+  }
+}

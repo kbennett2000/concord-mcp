@@ -59,6 +59,53 @@ class HttpBackend:
                 raise ConcordBusy(_retry_after_seconds(response))
         return self._payload_or_raise(response)
 
+    async def cross_references(
+        self, reference: str, include_text: bool = False, limit: int = 10
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {"limit": limit}
+        if include_text:
+            params["include_text"] = True
+            params["translation"] = self._config.default_translation
+        response = await self._get(
+            f"/v1/cross-references/{quote(reference, safe='')}", params
+        )
+        return self._payload_or_raise(response)
+
+    async def word_study(self, reference: str) -> dict[str, Any]:
+        # No text param: Concord picks the tagged text by the reference's testament.
+        response = await self._get(f"/v1/verses/{quote(reference, safe='')}/words", {})
+        return self._payload_or_raise(response)
+
+    async def strongs_entry(self, strongs_id: str) -> dict[str, Any]:
+        response = await self._get(f"/v1/strongs/{quote(strongs_id, safe='')}", {})
+        return self._payload_or_raise(response)
+
+    async def strongs_verses(self, strongs_id: str, limit: int = 10) -> dict[str, Any]:
+        response = await self._get(
+            f"/v1/strongs/{quote(strongs_id, safe='')}/verses",
+            {"limit": limit, "translation": self._config.default_translation},
+        )
+        return self._payload_or_raise(response)
+
+    async def list_topics(self, query: str, limit: int = 10) -> dict[str, Any]:
+        response = await self._get("/v1/topics", {"q": query, "limit": limit})
+        return self._payload_or_raise(response)
+
+    async def get_topic(self, topic_id: str) -> dict[str, Any]:
+        response = await self._get(f"/v1/topics/{quote(topic_id, safe='')}", {})
+        return self._payload_or_raise(response)
+
+    async def topic_verses(
+        self, topic_id: str, include_text: bool = True, limit: int = 10
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {"limit": limit, "include_text": include_text}
+        if include_text:
+            params["translation"] = self._config.default_translation
+        response = await self._get(
+            f"/v1/topics/{quote(topic_id, safe='')}/verses", params
+        )
+        return self._payload_or_raise(response)
+
     async def _get(self, path: str, params: dict[str, Any]) -> httpx.Response:
         try:
             return await self._client.get(path, params=params)

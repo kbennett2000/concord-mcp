@@ -1,0 +1,38 @@
+{
+  "id": "care",
+  "translation": "KJV",
+  "include_text": true,
+  "limit": 10,
+  "offset": 0,
+  "total": 4,
+  "verses": [
+    {
+      "book": "PSA",
+      "chapter": 37,
+      "verse": 5,
+      "reference": "Psalms 37:5",
+      "text": "Commit thy way unto the LORD; trust also in him; and he shall bring it to pass."
+    },
+    {
+      "book": "MAT",
+      "chapter": 6,
+      "verse": 25,
+      "reference": "Matthew 6:25",
+      "text": "Therefore I say unto you, Take no thought for your life, what ye shall eat, or what ye shall drink; nor yet for your body, what ye shall put on."
+    },
+    {
+      "book": "PHP",
+      "chapter": 4,
+      "verse": 6,
+      "reference": "Philippians 4:6",
+      "text": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God."
+    },
+    {
+      "book": "1PE",
+      "chapter": 5,
+      "verse": 7,
+      "reference": "1 Peter 5:7",
+      "text": "Casting all your care upon him; for he careth for you."
+    }
+  ]
+}

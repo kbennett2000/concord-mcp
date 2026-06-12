@@ -132,3 +132,116 @@ def test_busy_is_http_only():
     """The documented parity exception (S2 ruling 3): ConcordBusy belongs to
     Concord's HTTP load shedding; the in-process backend has no 503 path."""
     assert "ConcordBusy" not in inspect.getsource(inprocess_module)
+
+
+# --- S3 study families ------------------------------------------------------------
+
+
+async def test_cross_references_ranked_with_votes(call, fixture):
+    payload = await call(
+        "cross_references", "xrefs_john316", 200, reference="John 3:16"
+    )
+    assert payload == fixture("xrefs_john316")
+
+
+async def test_cross_references_hydrated(call, fixture):
+    payload = await call(
+        "cross_references",
+        "xrefs_john316_text",
+        200,
+        reference="John 3:16",
+        include_text=True,
+    )
+    assert payload == fixture("xrefs_john316_text")
+
+
+@pytest.mark.parametrize("mode", ["http", "inprocess"])
+async def test_cross_references_absent_translation_hydrates_null(
+    mode, fixture, synthetic_data
+):
+    # A WEB-default server: Romans 8:32 isn't in the synthetic WEB → text null.
+    if mode == "inprocess":
+        backend = InProcessBackend(
+            Config(
+                backend="inprocess",
+                default_translation="WEB",
+                bible_db_path=synthetic_data["bible_db"],
+                semantic_assets=synthetic_data["semantic"],
+            ),
+            encoder=fake_encoder,
+        )
+        payload = await backend.cross_references("John 3:16", include_text=True)
+    else:
+        backend = HttpBackend(Config(concord_url=BASE, default_translation="WEB"))
+        with respx.mock:
+            respx.get(url__startswith=f"{BASE}/v1/").respond(
+                json=fixture("xrefs_john316_text_web")
+            )
+            payload = await backend.cross_references("John 3:16", include_text=True)
+    assert payload["translation"] == "WEB"
+    assert payload["cross_references"][2]["text"] is None  # Romans 8:32
+
+
+async def test_word_study_single_verse(call, fixture):
+    payload = await call("word_study", "words_john2115", 200, reference="John 21:15")
+    assert payload == fixture("words_john2115")
+
+
+async def test_word_study_range(call, fixture):
+    payload = await call(
+        "word_study", "words_john211517", 200, reference="John 21:15-17"
+    )
+    assert payload == fixture("words_john211517")
+
+
+async def test_word_study_range_with_tokenless_verse(call, fixture):
+    payload = await call(
+        "word_study", "words_john211518", 200, reference="John 21:15-18"
+    )
+    assert payload == fixture("words_john211518")
+
+
+async def test_strongs_entry_normalizes_ids(call, fixture):
+    payload = await call("strongs_entry", "strongs_g26", 200, strongs_id="g0026")
+    assert payload == fixture("strongs_g26")
+
+
+async def test_strongs_verses_with_true_total(call, fixture):
+    payload = await call(
+        "strongs_verses", "strongs_g5368_verses_p2", 200, strongs_id="G5368", limit=2
+    )
+    assert payload == fixture("strongs_g5368_verses_p2")
+
+
+async def test_topics_substring_search(call, fixture):
+    payload = await call("list_topics", "topics_q_faith", 200, query="faith")
+    assert payload == fixture("topics_q_faith")
+
+
+async def test_topics_zero_matches(call, fixture):
+    payload = await call("list_topics", "topics_q_zero", 200, query="zzgrindset")
+    assert payload == fixture("topics_q_zero")
+
+
+async def test_topic_detail_carries_see_also_and_count(call, fixture):
+    payload = await call("get_topic", "topic_care_detail", 200, topic_id="care")
+    assert payload == fixture("topic_care_detail")
+
+
+async def test_topic_verses_hydrated(call, fixture):
+    payload = await call("topic_verses", "topic_care_verses", 200, topic_id="care")
+    assert payload == fixture("topic_care_verses")
+
+
+async def test_unknown_strongs_error_code(call):
+    with pytest.raises(ApiError) as excinfo:
+        await call("strongs_entry", "error_unknown_strongs", 404, strongs_id="Q99")
+    assert excinfo.value.status == 404
+    assert excinfo.value.code == "unknown_strongs"
+
+
+async def test_unknown_topic_error_code(call):
+    with pytest.raises(ApiError) as excinfo:
+        await call("topic_verses", "error_unknown_topic", 404, topic_id="caare")
+    assert excinfo.value.status == 404
+    assert excinfo.value.code == "unknown_topic"

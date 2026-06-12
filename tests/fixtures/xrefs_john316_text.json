@@ -1,0 +1,28 @@
+{
+  "reference": "John 3:16",
+  "translation": "KJV",
+  "min_votes": 0,
+  "limit": 10,
+  "offset": 0,
+  "total": 3,
+  "cross_references": [
+    {
+      "from": {"book": "JHN", "chapter": 3, "verse": 16, "reference": "John 3:16"},
+      "to": {"book": "ROM", "chapter": 5, "verse_start": 8, "verse_end": null, "reference": "Romans 5:8"},
+      "votes": 968,
+      "text": "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."
+    },
+    {
+      "from": {"book": "JHN", "chapter": 3, "verse": 16, "reference": "John 3:16"},
+      "to": {"book": "1JN", "chapter": 4, "verse_start": 9, "verse_end": 10, "reference": "1 John 4:9-10"},
+      "votes": 601,
+      "text": "In this was manifested the love of God toward us, because that God sent his only begotten Son into the world, that we might live through him."
+    },
+    {
+      "from": {"book": "JHN", "chapter": 3, "verse": 16, "reference": "John 3:16"},
+      "to": {"book": "ROM", "chapter": 8, "verse_start": 32, "verse_end": null, "reference": "Romans 8:32"},
+      "votes": 455,
+      "text": "He that spared not his own Son, but delivered him up for us all, how shall he not with him also freely give us all things?"
+    }
+  ]
+}

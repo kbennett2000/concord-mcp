@@ -61,3 +61,35 @@ class ConcordBackend(Protocol):
     ) -> dict[str, Any]:
         """Return the shape of GET /v1/semantic-search."""
         ...
+
+    async def cross_references(
+        self, reference: str, include_text: bool = False, limit: int = 10
+    ) -> dict[str, Any]:
+        """Return the shape of GET /v1/cross-references/{ref}."""
+        ...
+
+    async def word_study(self, reference: str) -> dict[str, Any]:
+        """Return the shape of GET /v1/verses/{ref}/words (flat token list)."""
+        ...
+
+    async def strongs_entry(self, strongs_id: str) -> dict[str, Any]:
+        """Return the shape of GET /v1/strongs/{id}."""
+        ...
+
+    async def strongs_verses(self, strongs_id: str, limit: int = 10) -> dict[str, Any]:
+        """Return the shape of GET /v1/strongs/{id}/verses."""
+        ...
+
+    async def list_topics(self, query: str, limit: int = 10) -> dict[str, Any]:
+        """Return the shape of GET /v1/topics?q=…."""
+        ...
+
+    async def get_topic(self, topic_id: str) -> dict[str, Any]:
+        """Return the shape of GET /v1/topics/{id}."""
+        ...
+
+    async def topic_verses(
+        self, topic_id: str, include_text: bool = True, limit: int = 10
+    ) -> dict[str, Any]:
+        """Return the shape of GET /v1/topics/{id}/verses."""
+        ...

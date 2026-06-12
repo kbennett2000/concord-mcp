@@ -9,7 +9,7 @@ Concord you control, on your LAN or in-process on your machine, fully offline on
 up. The assistant inherits Concord's honesty about uncertainty instead of inventing
 coordinates and citations.
 
-**Status: pre-v1 — slice 2 under review.**
+**Status: pre-v1 — slice 3 under review.**
 
 The full design lives in [docs/v1/SPEC.md](docs/v1/SPEC.md).
 
@@ -106,12 +106,20 @@ build the artifacts from a local Concord checkout — `make build-db`, then
 and point `BIBLE_DB_PATH` / `CONCORD_SEMANTIC_ASSETS` at the outputs. This
 repo's `make get-db` never builds Concord from source, deliberately (ADR 0004).
 
-## Tools (slice 1)
+## Tools
 
 - `lookup_verse` — exact text of a verse, range, list, or chapter, in one or more
   translations. `John 3:16`, `Genesis 1:1-5`, `Psalm 23`.
 - `search_by_meaning` — verses by idea or theme ("verses about anxiety"), ranked by
   closeness of meaning, even when they don't contain the words.
+- `cross_references` — the passages traditionally linked to a verse, ranked by
+  community votes.
+- `word_study` — the original-language words behind a passage; `John 21:15-17`
+  shows the famous two-words-for-love exchange.
+- `strongs_entry` — a Strong's lexicon entry (`G26`, `H7225`) with definition and,
+  optionally, where the word occurs.
+- `topic_verses` — a Nave's Topical Bible subject's curated verses, with "did you
+  mean" candidates and labeled "See X" redirects.
 
 Every verse comes back tagged `Book Chapter:Verse (TRANSLATION)`, so citations are
 verifiable. The rest of the ten-tool surface lands slice by slice — see
