@@ -20,7 +20,7 @@ def server():
     return create_server(config, HttpBackend(config))
 
 
-async def test_lists_exactly_six_read_only_tools(server):
+async def test_lists_exactly_nine_read_only_tools(server):
     async with create_connected_server_and_client_session(server) as session:
         result = await session.list_tools()
 
@@ -32,12 +32,17 @@ async def test_lists_exactly_six_read_only_tools(server):
         "word_study",
         "strongs_entry",
         "topic_verses",
+        "places_for_passage",
+        "journeys",
+        "random_verse",
     }
     for tool in tools.values():
         assert tool.annotations.readOnlyHint is True
         assert tool.annotations.destructiveHint is False
-        assert tool.annotations.idempotentHint is True
         assert tool.annotations.openWorldHint is False
+        # The one annotation difference in the surface (SPEC §4).
+        expected_idempotent = tool.name != "random_verse"
+        assert tool.annotations.idempotentHint is expected_idempotent
 
 
 async def test_descriptions_carry_the_search_disambiguation(server):
@@ -191,3 +196,55 @@ async def test_unknown_strongs_id_self_corrects(server, fixture):
     text = result.content[0].text
     assert "unknown_strongs" in text
     assert "'G26' (Greek) or 'H7225' (Hebrew)" in text
+
+
+@respx.mock
+async def test_places_for_passage_renders_the_nod_line(server, fixture):
+    respx.get(f"{BASE}/v1/verses/Genesis%204%3A16/places").respond(
+        json=fixture("places_gen416")
+    )
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool(
+            "places_for_passage", {"reference": "Genesis 4:16"}
+        )
+
+    text = result.content[0].text
+    assert "Nod (region) — unknown — location genuinely unknown, no coordinates" in text
+
+
+@respx.mock
+async def test_unknown_journey_enumerates_valid_ids(server, fixture):
+    respx.get(f"{BASE}/v1/journeys/paul-fourth").respond(
+        status_code=404, json=fixture("error_unknown_journey")
+    )
+    respx.get(f"{BASE}/v1/journeys").respond(json=fixture("journeys_list"))
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool("journeys", {"journey_id": "paul-fourth"})
+
+    text = result.content[0].text
+    assert text == "Unknown journey 'paul-fourth'. Valid ids: galilee-loop."
+
+
+@respx.mock
+async def test_random_verse_returns_tagged_line(server, fixture):
+    respx.get(f"{BASE}/v1/random").respond(json=fixture("random_gen_ylt"))
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool("random_verse", {"book": "Gen"})
+
+    text = result.content[0].text
+    assert "Genesis 1:1 (YLT) — In the beginning…" in text
+
+
+@respx.mock
+async def test_random_no_match_self_corrects(server, fixture):
+    respx.get(f"{BASE}/v1/random").respond(
+        status_code=404, json=fixture("error_no_match")
+    )
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool(
+            "random_verse", {"book": "Gen", "testament": "NT"}
+        )
+
+    text = result.content[0].text
+    assert "no_match" in text
+    assert "contradictory filters match no verse" in text
