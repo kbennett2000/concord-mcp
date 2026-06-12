@@ -20,12 +20,19 @@ def server():
     return create_server(config, HttpBackend(config))
 
 
-async def test_lists_exactly_two_read_only_tools(server):
+async def test_lists_exactly_six_read_only_tools(server):
     async with create_connected_server_and_client_session(server) as session:
         result = await session.list_tools()
 
     tools = {tool.name: tool for tool in result.tools}
-    assert set(tools) == {"lookup_verse", "search_by_meaning"}
+    assert set(tools) == {
+        "lookup_verse",
+        "search_by_meaning",
+        "cross_references",
+        "word_study",
+        "strongs_entry",
+        "topic_verses",
+    }
     for tool in tools.values():
         assert tool.annotations.readOnlyHint is True
         assert tool.annotations.destructiveHint is False
@@ -43,6 +50,11 @@ async def test_descriptions_carry_the_search_disambiguation(server):
     assert "search_keyword" in by_name["lookup_verse"]
     assert "lookup_verse" in by_name["search_by_meaning"]
     assert "search_keyword" in by_name["search_by_meaning"]
+    # The S3 routing pairs: curated index vs similarity, verse-words vs lexicon.
+    assert "topic_verses" in by_name["search_by_meaning"]
+    assert "search_by_meaning" in by_name["topic_verses"]
+    assert "strongs_entry" in by_name["word_study"]
+    assert "word_study" in by_name["strongs_entry"]
 
 
 @respx.mock
@@ -111,3 +123,73 @@ async def test_unreachable_concord_names_the_url_and_the_fix(server):
     text = result.content[0].text
     assert f"Concord isn't reachable at {BASE}." in text
     assert "CONCORD_URL" in text
+
+
+@respx.mock
+async def test_word_study_end_to_end_labels_verse_blocks(server, fixture):
+    respx.get(f"{BASE}/v1/verses/John%2021%3A15-17/words").respond(
+        json=fixture("words_john211517")
+    )
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool(
+            "word_study", {"reference": "John 21:15-17"}
+        )
+
+    text = result.content[0].text
+    assert "John 21:15:" in text and "John 21:17:" in text
+    assert "ἀγαπάω (agapaō, G25, V-PAI-2S)" in text
+
+
+@respx.mock
+async def test_topic_verses_ambiguous_returns_candidates(server, fixture):
+    respx.get(f"{BASE}/v1/topics").respond(json=fixture("topics_q_faith"))
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool("topic_verses", {"topic": "fait"})
+
+    text = result.content[0].text
+    assert 'Several topical-Bible entries match "fait"' in text
+    assert "faithfulness (FAITHFULNESS)" in text
+
+
+@respx.mock
+async def test_topic_verses_follows_and_labels_a_redirect(server, fixture):
+    respx.get(f"{BASE}/v1/topics").respond(json=fixture("topics_q_kindness"))
+    respx.get(f"{BASE}/v1/topics/care").respond(json=fixture("topic_care_detail"))
+    respx.get(f"{BASE}/v1/topics/care/verses").respond(
+        json=fixture("topic_care_verses")
+    )
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool("topic_verses", {"topic": "kindness"})
+
+    text = result.content[0].text
+    assert text.startswith('Nave\'s lists "KINDNESS" as "See CARE" — showing CARE.')
+    assert "Topic: CARE (Nave's Topical Bible) — 4 verses:" in text
+
+
+@respx.mock
+async def test_strongs_entry_with_occurrences(server, fixture):
+    respx.get(f"{BASE}/v1/strongs/G5368").respond(json=fixture("strongs_g26"))
+    respx.get(f"{BASE}/v1/strongs/G5368/verses").respond(
+        json=fixture("strongs_g5368_verses_p2")
+    )
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool(
+            "strongs_entry", {"strongs_id": "G5368", "include_verses": True}
+        )
+
+    text = result.content[0].text
+    assert text.startswith("G26 — ἀγάπη (agapē), Greek — love")
+    assert "Occurs in 3 verses (SBLGNT). Showing 2:" in text
+
+
+@respx.mock
+async def test_unknown_strongs_id_self_corrects(server, fixture):
+    respx.get(url__startswith=f"{BASE}/v1/strongs/").respond(
+        status_code=404, json=fixture("error_unknown_strongs")
+    )
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool("strongs_entry", {"strongs_id": "Q99"})
+
+    text = result.content[0].text
+    assert "unknown_strongs" in text
+    assert "'G26' (Greek) or 'H7225' (Hebrew)" in text
