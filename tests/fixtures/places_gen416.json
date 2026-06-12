@@ -1,0 +1,7 @@
+{
+  "reference": "Genesis 4:16",
+  "total": 1,
+  "places": [
+    {"id": "a-nod", "friendly_id": "Nod", "name": "Nod", "type": "region", "latitude": null, "longitude": null, "confidence": null, "confidence_score": null, "status": "unknown"}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "no_match",
+    "message": "no verse matches the requested filters",
+    "detail": {}
+  }
+}

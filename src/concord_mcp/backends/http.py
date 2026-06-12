@@ -106,6 +106,34 @@ class HttpBackend:
         )
         return self._payload_or_raise(response)
 
+    async def places_for_passage(self, reference: str) -> dict[str, Any]:
+        response = await self._get(f"/v1/verses/{quote(reference, safe='')}/places", {})
+        return self._payload_or_raise(response)
+
+    async def list_journeys(self) -> dict[str, Any]:
+        response = await self._get("/v1/journeys", {})
+        return self._payload_or_raise(response)
+
+    async def journey_detail(self, journey_id: str) -> dict[str, Any]:
+        response = await self._get(f"/v1/journeys/{quote(journey_id, safe='')}", {})
+        return self._payload_or_raise(response)
+
+    async def random_verse(
+        self,
+        book: str | None = None,
+        testament: str | None = None,
+        translation: str | None = None,
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {
+            "translation": translation or self._config.default_translation
+        }
+        if book:
+            params["book"] = book
+        if testament:
+            params["testament"] = testament
+        response = await self._get("/v1/random", params)
+        return self._payload_or_raise(response)
+
     async def _get(self, path: str, params: dict[str, Any]) -> httpx.Response:
         try:
             return await self._client.get(path, params=params)

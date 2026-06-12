@@ -126,12 +126,23 @@ all are `idempotentHint: true` except `random_verse`.
   min_score to narrow". Keyword search (S3) uses whichever applies per
   Concord's actual response shape, read at S3 time.
 - **Honesty passthrough:**
-  - Place lines carry status verbatim: `identified` / `disputed` /
-    `unknown` / `symbolic` / `multiple`. An `unknown` place renders as
-    "location genuinely unknown — no coordinates", never as a guessed pin
-    and never as 0,0.
-  - Journey output opens with: "one commonly proposed reconstruction
-    (source: …)" plus dating, before the ordered stops.
+  - Place lines carry status verbatim, one fixed format per status, with
+    coordinates in degree-and-hemisphere style (4 decimals) and **only**
+    for the two located statuses — never a bare pair, never 0,0:
+    - `Amphipolis (settlement) — identified — 40.8202°N, 23.8472°E (confidence high)`
+    - `Aenon (settlement) — disputed (identification contested) — 32.0500°N, 35.4500°E (confidence medium)`
+    - `Nod (region) — unknown — location genuinely unknown, no coordinates`
+    - `Valley of Hamon-gog (valley) — symbolic — a symbolic name, not a mappable location`
+    - `Holy Place (special) — multiple — several locations across history, no single pin`
+  - Journey detail opens with the data's reconstruction note verbatim
+    ("One commonly proposed reconstruction …") plus `(source: …)` and the
+    dating (clause omitted when the data marks dating as null/debated),
+    before the ordered stops; each stop renders with the place-line format
+    above plus its ordinal and verse anchor, so a disputed or unknown stop
+    reads as such mid-route. The journey list teaches the id pattern
+    (`paul-first`, `exodus`) and ends by pointing at the detail call.
+  - A random verse renders as one standard tagged line under a header
+    echoing the filters.
 - Word-study lines: `position. surface — lemma (transliteration, strongs_id,
   morph) — gloss`, one token per line; an untagged token renders
   `position. surface — [untagged]`. The upstream tokens payload carries no
@@ -186,6 +197,12 @@ Errors are written for the model to self-correct from:
   CONCORD_URL.)"
 - `503` + `Retry-After` from semantic search → surface as "Concord is busy;
   retry in {n}s" and honor one polite retry; no retry storms.
+- Unknown journey id → enumerate the valid ids in the error (the set is
+  small; that is model-correctable gold).
+- `random_verse` filters: unknown `book` → echo plus the expected forms
+  ('John', 'PSA'); invalid `testament` → "testament must be 'OT' or 'NT'";
+  `no_match` → "No verse matches those filters — book and testament may
+  contradict."
 - Unknown or malformed Strong's id → echo Concord's detail and restate the
   id format with examples (`G26`, `H7225`) and where to find ids
   (`word_study`).

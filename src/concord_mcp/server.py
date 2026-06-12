@@ -23,6 +23,10 @@ from concord_mcp.backends import (
 from concord_mcp.config import Config
 from concord_mcp.render import (
     render_cross_references,
+    render_journey_detail,
+    render_journeys_list,
+    render_places,
+    render_random,
     render_semantic,
     render_strongs,
     render_topic_candidates,
@@ -44,6 +48,14 @@ READ_ONLY = ToolAnnotations(
     readOnlyHint=True,
     destructiveHint=False,
     idempotentHint=True,
+    openWorldHint=False,
+)
+
+# random_verse is the one non-idempotent tool in the surface (SPEC §4).
+READ_ONLY_RANDOM = ToolAnnotations(
+    readOnlyHint=True,
+    destructiveHint=False,
+    idempotentHint=False,
     openWorldHint=False,
 )
 
@@ -123,6 +135,38 @@ TOPIC_VERSES_DESCRIPTION = (
     " 'Book Chapter:Verse (TRANSLATION)'."
 )
 
+PLACES_FOR_PASSAGE_DESCRIPTION = (
+    "List the places a passage names — with coordinates only where an"
+    " identification is actually confident. Use after reading a passage when"
+    " the question is 'where did this happen?' — e.g. 'Acts 17' or"
+    " 'Genesis 4:16'. Each place line carries its name, type, and an honesty"
+    " status straight from the data: 'identified' and 'disputed' come with"
+    " coordinates (disputed is flagged as contested), while 'unknown',"
+    " 'symbolic', and 'multiple' say plainly that no single pin exists —"
+    " never a guessed location. A passage naming no places says so."
+)
+
+JOURNEYS_DESCRIPTION = (
+    "Browse the curated biblical journeys, or get one journey's ordered"
+    " stops. Call with no arguments to list the journeys (ids like"
+    " 'paul-first', 'exodus', with names, scripture, dating, and stop"
+    " counts), then call again with a journey_id for the detail: an ordered"
+    " stop list with each place's honesty status, coordinates where"
+    " confident, and the verse anchoring each leg. Every detail opens with"
+    " its source attribution — these are commonly proposed reconstructions,"
+    " not certainties."
+)
+
+RANDOM_VERSE_DESCRIPTION = (
+    "Fetch one random verse — for a verse of the day, a writing prompt, or"
+    " sampling a book's voice. Optionally filter by book ('John', 'PSA') or"
+    " testament ('OT' or 'NT'), and pick a translation (default KJV). Each"
+    " call returns a different verse, tagged 'Book Chapter:Verse"
+    " (TRANSLATION)' so you can cite or look it up. If the filters"
+    " contradict (a NT testament with an OT book), you'll be told no verse"
+    " matches."
+)
+
 REFERENCE_HINT = (
     "Expected a reference like 'John 3:16', 'Genesis 1:1-5', or 'Psalm 23'."
 )
@@ -134,6 +178,10 @@ STRONGS_HINT = (
 TOPIC_HINT = (
     "Nave's indexes classic study subjects; for ideas in your own words,"
     " use search_by_meaning."
+)
+RANDOM_HINT = (
+    "Filters: book takes a name or USFM id like 'John' or 'PSA'; testament"
+    " must be 'OT' or 'NT'; contradictory filters match no verse."
 )
 
 
@@ -392,6 +440,89 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
         except BackendError as exc:
             return render_error(exc, TOPIC_HINT)
         return render_topic_verses(payload, chosen["name"], redirect_note)
+
+    @mcp.tool(annotations=READ_ONLY, description=PLACES_FOR_PASSAGE_DESCRIPTION)
+    async def places_for_passage(
+        reference: Annotated[
+            str,
+            Field(
+                description=(
+                    "The passage to scan for place names, e.g. 'Acts 17' or"
+                    " 'Genesis 4:16'."
+                )
+            ),
+        ],
+    ) -> str:
+        try:
+            payload = await backend.places_for_passage(reference)
+        except BackendError as exc:
+            return render_error(exc, REFERENCE_HINT)
+        return render_places(payload)
+
+    @mcp.tool(annotations=READ_ONLY, description=JOURNEYS_DESCRIPTION)
+    async def journeys(
+        journey_id: Annotated[
+            str | None,
+            Field(
+                description=(
+                    "A journey id from the list call, e.g. 'paul-first'."
+                    " Omit to list all journeys."
+                )
+            ),
+        ] = None,
+    ) -> str:
+        try:
+            if journey_id is None:
+                return render_journeys_list(await backend.list_journeys())
+            try:
+                payload = await backend.journey_detail(journey_id)
+            except ApiError as exc:
+                if exc.code != "unknown_journey":
+                    raise
+                # The valid set is small — enumerating it is model-correctable
+                # gold (SPEC §8). Plain echo if the list call itself fails.
+                try:
+                    listing = await backend.list_journeys()
+                    ids = ", ".join(j["id"] for j in listing["journeys"])
+                    return f"Unknown journey '{journey_id}'. Valid ids: {ids}."
+                except BackendError:
+                    return render_error(exc, "")
+        except BackendError as exc:
+            return render_error(exc, "")
+        return render_journey_detail(payload)
+
+    @mcp.tool(annotations=READ_ONLY_RANDOM, description=RANDOM_VERSE_DESCRIPTION)
+    async def random_verse(
+        book: Annotated[
+            str | None,
+            Field(
+                description=(
+                    "Limit to one book — a name or USFM id, e.g. 'John' or"
+                    " 'PSA'. Default: the whole Bible."
+                )
+            ),
+        ] = None,
+        testament: Annotated[
+            str | None,
+            Field(description="Limit to 'OT' or 'NT'. Default: both."),
+        ] = None,
+        translation: Annotated[
+            str | None,
+            Field(
+                description=(
+                    "Translation id for the verse text, e.g. 'WEB'. Default:"
+                    " the server's configured translation (KJV)."
+                )
+            ),
+        ] = None,
+    ) -> str:
+        try:
+            payload = await backend.random_verse(
+                book=book, testament=testament, translation=translation
+            )
+        except BackendError as exc:
+            return render_error(exc, RANDOM_HINT)
+        return render_random(payload)
 
     return mcp
 

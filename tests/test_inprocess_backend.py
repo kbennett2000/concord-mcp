@@ -137,3 +137,19 @@ async def test_model_mismatched_store_degrades_with_the_guards_reason(
     with pytest.raises(LocalDataMissing) as excinfo:
         await backend.semantic_search("do not be anxious")
     assert "different model" in str(excinfo.value)
+
+
+async def test_random_draws_stay_in_the_filtered_universe(inprocess_backend):
+    """Flake-proof randomness property (S4 ruling 2): every draw is asserted
+    for membership + tagging; variation needs only >= 2 distinct verses in 20
+    draws over the 4-verse KJV John universe (false-fail ~ 4 * 0.25**19)."""
+    seen = set()
+    for _ in range(20):
+        payload = await inprocess_backend.random_verse(book="John")
+        verse = payload["verse"]
+        assert verse["book"] == "JHN"
+        assert payload["translation"] == "KJV"
+        assert verse["reference"] == f"John {verse['chapter']}:{verse['verse']}"
+        assert verse["text"]
+        seen.add((verse["chapter"], verse["verse"]))
+    assert len(seen) >= 2

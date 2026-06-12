@@ -1,0 +1,14 @@
+{
+  "limit": 50,
+  "offset": 0,
+  "total": 1,
+  "journeys": [
+    {
+      "id": "galilee-loop",
+      "name": "A Galilean Loop",
+      "scripture": "John 21",
+      "dating": "c. AD 30 (conventional)",
+      "stop_count": 4
+    }
+  ]
+}

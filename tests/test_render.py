@@ -1,7 +1,12 @@
 """The §5 format rules, asserted line by line."""
 
 from concord_mcp.render import (
+    _place_line,
     render_cross_references,
+    render_journey_detail,
+    render_journeys_list,
+    render_places,
+    render_random,
     render_semantic,
     render_strongs,
     render_topic_candidates,
@@ -210,3 +215,95 @@ def test_topic_candidates_list_ids(fixture):
 def test_topic_zero_match_points_at_search_by_meaning():
     out = topic_zero_match("zzgrindset")
     assert "search_by_meaning" in out
+
+
+# --- geography + journeys + random (§5, S4) ----------------------------------------
+
+
+def test_place_lines_per_status(fixture):
+    out = render_places(fixture("places_john2116"))
+    lines = out.splitlines()
+    assert lines[0] == "Places named in John 21:16 (5):"
+    assert lines[1] == (
+        "Aenon (settlement) — disputed (identification contested)"
+        " — 32.0500°N, 35.4500°E (confidence medium)"
+    )
+    assert lines[2] == (
+        "Amphipolis (settlement) — identified — 40.8202°N, 23.8472°E (confidence high)"
+    )
+    assert lines[3] == (
+        "Holy Place (special) — multiple — several locations across history,"
+        " no single pin"
+    )
+    assert (
+        lines[4]
+        == "Nod (region) — unknown — location genuinely unknown, no coordinates"
+    )
+    assert lines[5] == (
+        "Valley of Hamon-gog (valley) — symbolic — a symbolic name,"
+        " not a mappable location"
+    )
+
+
+def test_no_coordinates_ever_for_null_statuses(fixture):
+    # The coordinate hard line: no digit-pair leaks on unknown/symbolic/multiple
+    # lines — anywhere, journey stops included.
+    import re
+
+    coord = re.compile(r"\d+\.\d+°")
+    for line in render_places(fixture("places_john2116")).splitlines():
+        if any(
+            s in line for s in (" — unknown — ", " — symbolic — ", " — multiple — ")
+        ):
+            assert not coord.search(line)
+    for line in render_journey_detail(fixture("journey_galilee_loop")).splitlines():
+        if " — unknown — " in line:
+            assert not coord.search(line)
+
+
+def test_places_empty_passage(fixture):
+    assert render_places(fixture("places_empty")) == "No places are named in John 3:16."
+
+
+def test_southern_western_hemispheres():
+    line = _place_line("Somewhere", "settlement", "identified", -33.86, -151.2, "low")
+    assert "33.8600°S, 151.2000°W" in line
+
+
+def test_journeys_list_teaches_the_id_call(fixture):
+    out = render_journeys_list(fixture("journeys_list"))
+    lines = out.splitlines()
+    assert lines[0] == "Curated journeys (1):"
+    assert lines[1] == (
+        "galilee-loop — A Galilean Loop (John 21; c. AD 30 (conventional); 4 stops)"
+    )
+    assert lines[-1] == "Call journeys with a journey_id for the ordered stops."
+
+
+def test_journey_detail_attribution_header_first(fixture):
+    out = render_journey_detail(fixture("journey_galilee_loop"))
+    lines = out.splitlines()
+    assert lines[0] == (
+        "A Galilean Loop (galilee-loop) — John 21, dating: c. AD 30 (conventional)"
+    )
+    assert lines[1] == (
+        "One commonly proposed reconstruction assembled for the test suite."
+        " (source: Synthetic itinerary for tests.)"
+    )
+    assert lines[2].startswith("1. Amphipolis — identified — 40.8202°N")
+    assert lines[2].endswith("— John 21:15")
+    assert "3. Nod — unknown — location genuinely unknown, no coordinates" in lines[4]
+    assert lines[5].startswith("4. Amphipolis")  # the revisit repeats
+
+
+def test_journey_detail_null_dating_omits_the_clause(fixture):
+    payload = fixture("journey_galilee_loop")
+    payload["dating"] = None
+    out = render_journey_detail(payload)
+    assert "dating:" not in out.splitlines()[0]
+
+
+def test_random_render(fixture):
+    out = render_random(fixture("random_gen_ylt"))
+    assert out.splitlines()[0] == "Random verse (YLT, book GEN):"
+    assert out.splitlines()[1] == "Genesis 1:1 (YLT) — In the beginning…"
