@@ -188,9 +188,7 @@ def render_word_study(payload: dict[str, Any], reference: str) -> str:
     return "\n".join(lines)
 
 
-def render_strongs(
-    entry: dict[str, Any], verses_payload: dict[str, Any] | None
-) -> str:
+def render_strongs(entry: dict[str, Any], verses_payload: dict[str, Any] | None) -> str:
     """/v1/strongs/{id} (+ optional /verses) → entry block + occurrences."""
     language = LANGUAGE_NAMES.get(entry["language"], entry["language"])
     lines = [

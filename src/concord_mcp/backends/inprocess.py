@@ -39,6 +39,7 @@ HEBREW_TEXT = "OSHB"
 # anything that isn't a Strong's number is upper-cased and left to 404.
 _STRONGS_ID_RE = re.compile(r"([GH])0*(\d+)", re.IGNORECASE)
 
+
 def _normalize_strongs_id(raw: str) -> str:
     m = _STRONGS_ID_RE.fullmatch(raw.strip())
     return f"{m.group(1).upper()}{m.group(2)}" if m else raw.strip().upper()
@@ -188,9 +189,7 @@ class InProcessBackend:
         )
 
     async def word_study(self, reference: str) -> dict[str, Any]:
-        return await anyio.to_thread.run_sync(
-            partial(self._word_study_sync, reference)
-        )
+        return await anyio.to_thread.run_sync(partial(self._word_study_sync, reference))
 
     async def strongs_entry(self, strongs_id: str) -> dict[str, Any]:
         return await anyio.to_thread.run_sync(
@@ -208,9 +207,7 @@ class InProcessBackend:
         )
 
     async def get_topic(self, topic_id: str) -> dict[str, Any]:
-        return await anyio.to_thread.run_sync(
-            partial(self._get_topic_sync, topic_id)
-        )
+        return await anyio.to_thread.run_sync(partial(self._get_topic_sync, topic_id))
 
     async def topic_verses(
         self, topic_id: str, include_text: bool = True, limit: int = 10
@@ -278,7 +275,9 @@ class InProcessBackend:
     def _word_study_sync(self, reference: str) -> dict[str, Any]:
         conn = self._connect()
         parsed = self._parse(reference)
-        text_id = HEBREW_TEXT if self._testaments[parsed.book_id] == "OT" else GREEK_TEXT
+        text_id = (
+            HEBREW_TEXT if self._testaments[parsed.book_id] == "OT" else GREEK_TEXT
+        )
         if text_id not in self._translations:
             raise ApiError(
                 404, "unknown_translation", f"Tagged text {text_id!r} is not loaded."

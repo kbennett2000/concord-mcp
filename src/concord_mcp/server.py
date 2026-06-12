@@ -247,9 +247,7 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
         reference: Annotated[
             str,
             Field(
-                description=(
-                    "The source passage, e.g. 'John 3:16' or 'Genesis 1:1-5'."
-                )
+                description=("The source passage, e.g. 'John 3:16' or 'Genesis 1:1-5'.")
             ),
         ],
         include_text: Annotated[
@@ -308,8 +306,7 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
             bool,
             Field(
                 description=(
-                    "Also list the verses where this word occurs."
-                    " Default false."
+                    "Also list the verses where this word occurs. Default false."
                 )
             ),
         ] = False,

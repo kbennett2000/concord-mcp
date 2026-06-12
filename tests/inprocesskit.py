@@ -253,8 +253,12 @@ def build_bible_db(target_dir: Path) -> Path:
         ("John", 3, 16): _fixture_text(
             "verses_john316_kjv_web", chapter=3, verse=16, translation="KJV"
         ),
-        ("Php", 4, 6): _fixture_text("semantic_anxious", book="PHP", chapter=4, verse=6),
-        ("1Pe", 5, 7): _fixture_text("semantic_anxious", book="1PE", chapter=5, verse=7),
+        ("Php", 4, 6): _fixture_text(
+            "semantic_anxious", book="PHP", chapter=4, verse=6
+        ),
+        ("1Pe", 5, 7): _fixture_text(
+            "semantic_anxious", book="1PE", chapter=5, verse=7
+        ),
         **KJV_TEXTS,
     }
     kjv = _translation_from_table("KJV", kjv_texts)

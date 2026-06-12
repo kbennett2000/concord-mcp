@@ -131,9 +131,7 @@ async def test_word_study_end_to_end_labels_verse_blocks(server, fixture):
         json=fixture("words_john211517")
     )
     async with create_connected_server_and_client_session(server) as session:
-        result = await session.call_tool(
-            "word_study", {"reference": "John 21:15-17"}
-        )
+        result = await session.call_tool("word_study", {"reference": "John 21:15-17"})
 
     text = result.content[0].text
     assert "John 21:15:" in text and "John 21:17:" in text
