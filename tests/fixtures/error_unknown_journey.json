@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "unknown_journey",
+    "message": "no journey with id 'paul-fourth'",
+    "detail": {"journey_id": "paul-fourth"}
+  }
+}

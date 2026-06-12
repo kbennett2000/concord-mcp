@@ -1,0 +1,14 @@
+{
+  "id": "galilee-loop",
+  "name": "A Galilean Loop",
+  "scripture": "John 21",
+  "dating": "c. AD 30 (conventional)",
+  "source": "Synthetic itinerary for tests.",
+  "note": "One commonly proposed reconstruction assembled for the test suite.",
+  "stops": [
+    {"ordinal": 1, "place_id": "a-amphipolis", "name": "Amphipolis", "friendly_id": "Amphipolis", "latitude": 40.820159, "longitude": 23.847209, "confidence": "high", "status": "identified", "reference": "John 21:15"},
+    {"ordinal": 2, "place_id": "a-aenon", "name": "Aenon", "friendly_id": "Aenon", "latitude": 32.05, "longitude": 35.45, "confidence": "medium", "status": "disputed", "reference": "John 21:16"},
+    {"ordinal": 3, "place_id": "a-nod", "name": "Nod", "friendly_id": "Nod", "latitude": null, "longitude": null, "confidence": null, "status": "unknown", "reference": "John 21:17"},
+    {"ordinal": 4, "place_id": "a-amphipolis", "name": "Amphipolis", "friendly_id": "Amphipolis", "latitude": 40.820159, "longitude": 23.847209, "confidence": "high", "status": "identified", "reference": "John 21:19"}
+  ]
+}

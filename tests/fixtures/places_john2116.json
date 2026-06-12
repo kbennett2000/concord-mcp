@@ -1,0 +1,11 @@
+{
+  "reference": "John 21:16",
+  "total": 5,
+  "places": [
+    {"id": "a-aenon", "friendly_id": "Aenon", "name": "Aenon", "type": "settlement", "latitude": 32.05, "longitude": 35.45, "confidence": "medium", "confidence_score": 276, "status": "disputed"},
+    {"id": "a-amphipolis", "friendly_id": "Amphipolis", "name": "Amphipolis", "type": "settlement", "latitude": 40.820159, "longitude": 23.847209, "confidence": "high", "confidence_score": 1000, "status": "identified"},
+    {"id": "a-holy-place", "friendly_id": "Holy Place", "name": "Holy Place", "type": "special", "latitude": null, "longitude": null, "confidence": null, "confidence_score": null, "status": "multiple"},
+    {"id": "a-nod", "friendly_id": "Nod", "name": "Nod", "type": "region", "latitude": null, "longitude": null, "confidence": null, "confidence_score": null, "status": "unknown"},
+    {"id": "a-hamon-gog", "friendly_id": "Valley of Hamon-gog", "name": "Valley of Hamon-gog", "type": "valley", "latitude": null, "longitude": null, "confidence": null, "confidence_score": null, "status": "symbolic"}
+  ]
+}

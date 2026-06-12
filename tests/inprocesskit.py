@@ -211,6 +211,119 @@ TOPICS = [
     },
 ]
 
+# --- geography + journeys (S4) -------------------------------------------------
+# Builders adapted from bible-core's tests/geokit.py (not shipped in the wheel):
+# only the subset of OpenBible's ancient/modern structure the geo loader reads.
+
+
+def _modern_loc(modern_id: str, longitude: float, latitude: float) -> dict[str, Any]:
+    # modern.jsonl lonlat is "longitude,latitude" order (longitude first).
+    return {"id": modern_id, "lonlat": f"{longitude},{latitude}"}
+
+
+def _assoc(score: int, name: str) -> dict[str, Any]:
+    return {"score": score, "name": name, "url_slug": name.lower().replace(" ", "-")}
+
+
+def _geo_verse(book_order: int, chapter: int, verse: int) -> dict[str, Any]:
+    return {"sort": f"{book_order:02d}{chapter:03d}{verse:03d}"}
+
+
+def _ancient_place(
+    place_id: str,
+    friendly_id: str,
+    *,
+    types: tuple[str, ...] = ("settlement",),
+    associations: dict[str, dict[str, Any]] | None = None,
+    specials: tuple[str, ...] = (),
+    verses: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    record: dict[str, Any] = {
+        "id": place_id,
+        "friendly_id": friendly_id,
+        "url_slug": friendly_id.lower().replace(" ", "-"),
+        "preceding_article": "",
+        "types": list(types),
+        "modern_associations": associations or {},
+        "verses": verses or [],
+    }
+    if specials:
+        record["identifications"] = [
+            {"resolutions": [{"special": special} for special in specials]}
+        ]
+    return record
+
+
+JOHN_2116 = _geo_verse(43, 21, 16)
+
+# One place per honesty status, all named in John 21:16; Nod also in Gen 4:16.
+ANCIENT_PLACES = [
+    _ancient_place(
+        "a-amphipolis",
+        "Amphipolis",
+        associations={"m-amphipolis": _assoc(1000, "Amphipolis")},
+        verses=[JOHN_2116],
+    ),
+    _ancient_place(
+        "a-aenon",
+        "Aenon",
+        # Two competing associations (runner-up ≥ 0.8 × best, both ≥ 100) → disputed.
+        associations={
+            "m-ainun": _assoc(276, "Khirbat Ainun"),
+            "m-umdan": _assoc(226, "Umm al-Umdan"),
+        },
+        verses=[JOHN_2116],
+    ),
+    _ancient_place(
+        "a-nod",
+        "Nod",
+        types=("region",),
+        specials=("unknown_place",),
+        verses=[_geo_verse(1, 4, 16), JOHN_2116],
+    ),
+    _ancient_place(
+        "a-hamon-gog",
+        "Valley of Hamon-gog",
+        types=("valley",),
+        specials=("nonspecific_place",),
+        verses=[JOHN_2116],
+    ),
+    _ancient_place(
+        "a-holy-place",
+        "Holy Place",
+        types=("special",),
+        specials=("multiple_locations",),
+        verses=[JOHN_2116],
+    ),
+]
+
+MODERN_LOCS = [
+    _modern_loc("m-amphipolis", 23.847209, 40.820159),
+    _modern_loc("m-ainun", 35.45, 32.05),
+    _modern_loc("m-umdan", 35.2, 31.9),
+]
+
+JOURNEYS = {
+    "journeys": [
+        {
+            "id": "galilee-loop",
+            "name": "A Galilean Loop",
+            "scripture": "John 21",
+            "dating": "c. AD 30 (conventional)",
+            "source": "Synthetic itinerary for tests.",
+            "note": (
+                "One commonly proposed reconstruction assembled for the test suite."
+            ),
+            "stops": [
+                {"ordinal": 1, "place_id": "a-amphipolis", "reference": "John 21:15"},
+                {"ordinal": 2, "place_id": "a-aenon", "reference": "John 21:16"},
+                {"ordinal": 3, "place_id": "a-nod", "reference": "John 21:17"},
+                {"ordinal": 4, "place_id": "a-amphipolis", "reference": "John 21:19"},
+            ],
+        }
+    ]
+}
+
 CROSS_REFS_TSV = (
     "From\tTo\tVotes\n"
     "John.3.16\tRom.5.8\t968\n"
@@ -314,14 +427,29 @@ def build_bible_db(target_dir: Path) -> Path:
         )
     )
 
+    geo_dir = target_dir / "geography"
+    geo_dir.mkdir()
+    (geo_dir / "ancient.jsonl").write_text(
+        "".join(json.dumps(r) + "\n" for r in ANCIENT_PLACES)
+    )
+    (geo_dir / "modern.jsonl").write_text(
+        "".join(json.dumps(r) + "\n" for r in MODERN_LOCS)
+    )
+
+    journeys_dir = target_dir / "journeys"
+    journeys_dir.mkdir()
+    (journeys_dir / "journeys.json").write_text(json.dumps(JOURNEYS))
+
     db_path = target_dir / "bible.db"
     build_database(
         db_path,
         [json_dir],
         cross_ref_dirs=[xref_dir],
+        geo_dir=geo_dir,
         topics_dir=topics_dir,
         lexicon_dir=strongs_dir,
         tokens_dir=strongs_dir,
+        journeys_dir=journeys_dir,
     )
     return db_path
 
