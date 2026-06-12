@@ -9,7 +9,7 @@ Concord you control, on your LAN or in-process on your machine, fully offline on
 up. The assistant inherits Concord's honesty about uncertainty instead of inventing
 coordinates and citations.
 
-**Status: pre-v1 — slice 1 under review.**
+**Status: pre-v1 — slice 2 under review.**
 
 The full design lives in [docs/v1/SPEC.md](docs/v1/SPEC.md).
 
@@ -58,6 +58,53 @@ claude mcp add concord --env CONCORD_URL=http://<your-concord-host>:port-number 
 ```bash
 npx @modelcontextprotocol/inspector -e CONCORD_URL=http://<your-concord-host>:port-number uv run concord-mcp
 ```
+
+## Run without a Concord container
+
+In-process mode imports Concord's engine (`bible-core` + `bible-semantic`)
+directly — one Python process, everything from local disk, fully offline once
+set up. Fetch the data first (needs Docker once, for extraction only — nothing
+runs in a container afterward; ~400 MB total for the database, embedding
+model, and verse vectors):
+
+```bash
+make get-db
+```
+
+That fills `data/concord/` with `bible.db` and `semantic/` (the embedding
+model + `embeddings.db`), which is where the defaults point — so the only
+setting you need is the backend switch:
+
+```bash
+npx @modelcontextprotocol/inspector -e CONCORD_MCP_BACKEND=inprocess uv run concord-mcp
+```
+
+Claude Desktop, same idea:
+
+```json
+{
+  "mcpServers": {
+    "concord": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/concord-mcp", "run", "concord-mcp"],
+      "env": { "CONCORD_MCP_BACKEND": "inprocess" }
+    }
+  }
+}
+```
+
+(`--directory` makes the repo the working directory, which is what the
+relative `data/concord/` defaults resolve against. Custom locations:
+`BIBLE_DB_PATH` and `CONCORD_SEMANTIC_ASSETS`.)
+
+If the semantic artifacts are missing, `search_by_meaning` says so and names
+the fixes; `lookup_verse` keeps working from `bible.db` alone.
+
+**Developer alternative** (hacking on Concord and concord-mcp together):
+build the artifacts from a local Concord checkout — `make build-db`, then
+`python scripts/fetch_model.py` and `python scripts/build_embeddings.py` —
+and point `BIBLE_DB_PATH` / `CONCORD_SEMANTIC_ASSETS` at the outputs. This
+repo's `make get-db` never builds Concord from source, deliberately (ADR 0004).
 
 ## Tools (slice 1)
 
