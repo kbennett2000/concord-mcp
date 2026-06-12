@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "no_verses_found",
+    "message": "no verses found for 'John 99:99' in the requested translations",
+    "detail": {}
+  }
+}
