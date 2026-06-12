@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "unknown_strongs",
+    "message": "no Strong's entry for 'Q99'",
+    "detail": {"strongs_id": "Q99"}
+  }
+}

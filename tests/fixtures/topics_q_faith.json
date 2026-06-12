@@ -1,0 +1,11 @@
+{
+  "q": "faith",
+  "section": null,
+  "limit": 10,
+  "offset": 0,
+  "total": 2,
+  "topics": [
+    {"id": "faith", "name": "FAITH", "section": "F", "see_also": null},
+    {"id": "faithfulness", "name": "FAITHFULNESS", "section": "F", "see_also": null}
+  ]
+}
