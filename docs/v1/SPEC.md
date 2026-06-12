@@ -1,8 +1,8 @@
 # concord-mcp — v1 specification
 
-Status: **draft, pre-implementation**. This document is the source of truth;
-deviations discovered during implementation are surfaced and amended here in
-the same PR.
+Status: **shipped at v1.0.0** — amended during implementation wherever reality
+and the draft disagreed (the deviations rule); this document remains the
+source of truth.
 
 ## 1. What this is
 

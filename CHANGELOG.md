@@ -40,8 +40,13 @@ eval set. Read-only forever; no telemetry; fully offline once set up.
 - MCP resources `concord://translations` and `concord://books` (per-read).
 - The server instructions rewritten to route all ten tools.
 
-### S5b — Release prep (`feat/release-prep`, this PR)
+### S5b — Release prep (`feat/release-prep`, PR #8)
 - `evals/concord-mcp-evals.xml` + manual protocol; CHANGELOG; version 1.0.0.
+
+### Post-prep — Beginner-first front door (`feat/front-door`, PR #9)
+- README rewritten for the non-technical reader; everything technical moved
+  intact to `docs/DEVELOPERS.md`; the family banner (`docs/banner.svg`,
+  "looked up, never made up").
 
 ### Findings ledger
 Things the read-the-source rule (and the parity suite) caught along the way:
