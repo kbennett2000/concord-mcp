@@ -76,6 +76,8 @@ makes the repo harder for that reader, it needs a very good reason.
 
 ## Conventions
 
+- Run `ruff format` before every commit — formatting never lands as its
+  own commit.
 - **Tool descriptions are product copy for the model.** Imperative,
   example-bearing, maintained beside their tools. Changing one is a reviewed
   change with rationale, never a drive-by edit.

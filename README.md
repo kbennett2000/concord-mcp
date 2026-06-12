@@ -9,7 +9,7 @@ Concord you control, on your LAN or in-process on your machine, fully offline on
 up. The assistant inherits Concord's honesty about uncertainty instead of inventing
 coordinates and citations.
 
-**Status: pre-v1 — slice 3 under review.**
+**Status: pre-v1 — slice 4 under review.**
 
 The full design lives in [docs/v1/SPEC.md](docs/v1/SPEC.md).
 
@@ -120,6 +120,11 @@ repo's `make get-db` never builds Concord from source, deliberately (ADR 0004).
   optionally, where the word occurs.
 - `topic_verses` — a Nave's Topical Bible subject's curated verses, with "did you
   mean" candidates and labeled "See X" redirects.
+- `places_for_passage` — the places a passage names, with coordinates only where
+  the identification is confident; land of Nod stays honestly unmapped.
+- `journeys` — the curated journeys (`paul-first`, `exodus`, …) and their ordered,
+  source-attributed stops.
+- `random_verse` — one random verse, optionally filtered by book or testament.
 
 Every verse comes back tagged `Book Chapter:Verse (TRANSLATION)`, so citations are
 verifiable. The rest of the ten-tool surface lands slice by slice — see
