@@ -44,6 +44,13 @@ Once connected, the assistant can:
 No menus, no commands — you just ask in plain English, and the assistant
 chooses how to look it up.
 
+**Want to build this yourself?**
+[concord-tutorial-ai](https://github.com/kbennett2000/concord-tutorial-ai) is
+a free five-lesson course that hand-rolls the small version of exactly this
+server — the loop, the one rule, the honest errors — in plain JavaScript, no
+AI experience needed. By the last lesson you're reading this repo's source at
+its v1.0.0 tag and recognizing every part.
+
 ## Why you might want this
 
 - **Quotes you can check.** Every verse arrives with its reference. Open your
