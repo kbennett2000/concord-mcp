@@ -39,6 +39,12 @@ class ConcordBusy(BackendError):
         self.retry_after = retry_after
 
 
+class LocalDataMissing(BackendError):
+    """A local artifact (bible.db, semantic assets) is absent or unusable
+    (inprocess mode). The message names the fixes (SPEC §8) and is rendered
+    to the model verbatim."""
+
+
 class ConcordBackend(Protocol):
     async def get_verses(
         self, reference: str, translations: list[str] | None = None
