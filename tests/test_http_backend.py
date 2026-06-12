@@ -218,3 +218,31 @@ async def test_topic_verses_without_text_omits_translation(backend, fixture):
     params = route.calls.last.request.url.params
     assert params["include_text"] == "false"
     assert "translation" not in params
+
+
+@respx.mock
+async def test_places_for_passage_url(backend, fixture):
+    route = respx.get(f"{BASE}/v1/verses/Genesis%204%3A16/places").respond(
+        json=fixture("places_gen416")
+    )
+    payload = await backend.places_for_passage("Genesis 4:16")
+    assert payload["total"] == 1
+    assert not route.calls.last.request.url.params
+
+
+@respx.mock
+async def test_random_sends_translation_explicitly_and_filters(backend, fixture):
+    route = respx.get(f"{BASE}/v1/random").respond(json=fixture("random_gen_ylt"))
+    await backend.random_verse(book="Gen", testament="ot")
+    params = route.calls.last.request.url.params
+    assert params["translation"] == "KJV"  # explicit default, house rule
+    assert params["book"] == "Gen"
+    assert params["testament"] == "ot"  # passed through; Concord validates
+
+
+@respx.mock
+async def test_random_omits_absent_filters(backend, fixture):
+    route = respx.get(f"{BASE}/v1/random").respond(json=fixture("random_gen_ylt"))
+    await backend.random_verse()
+    params = route.calls.last.request.url.params
+    assert "book" not in params and "testament" not in params

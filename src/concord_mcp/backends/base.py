@@ -93,3 +93,24 @@ class ConcordBackend(Protocol):
     ) -> dict[str, Any]:
         """Return the shape of GET /v1/topics/{id}/verses."""
         ...
+
+    async def places_for_passage(self, reference: str) -> dict[str, Any]:
+        """Return the shape of GET /v1/verses/{ref}/places."""
+        ...
+
+    async def list_journeys(self) -> dict[str, Any]:
+        """Return the shape of GET /v1/journeys."""
+        ...
+
+    async def journey_detail(self, journey_id: str) -> dict[str, Any]:
+        """Return the shape of GET /v1/journeys/{id}."""
+        ...
+
+    async def random_verse(
+        self,
+        book: str | None = None,
+        testament: str | None = None,
+        translation: str | None = None,
+    ) -> dict[str, Any]:
+        """Return the shape of GET /v1/random."""
+        ...

@@ -412,6 +412,145 @@ class InProcessBackend:
             "verses": self._hydrated_verses(conn, rows, translation_id),
         }
 
+    # --- geography, journeys, random (S4) ----------------------------------------
+
+    async def places_for_passage(self, reference: str) -> dict[str, Any]:
+        return await anyio.to_thread.run_sync(partial(self._places_sync, reference))
+
+    async def list_journeys(self) -> dict[str, Any]:
+        return await anyio.to_thread.run_sync(self._list_journeys_sync)
+
+    async def journey_detail(self, journey_id: str) -> dict[str, Any]:
+        return await anyio.to_thread.run_sync(
+            partial(self._journey_detail_sync, journey_id)
+        )
+
+    async def random_verse(
+        self,
+        book: str | None = None,
+        testament: str | None = None,
+        translation: str | None = None,
+    ) -> dict[str, Any]:
+        return await anyio.to_thread.run_sync(
+            partial(self._random_sync, book, testament, translation)
+        )
+
+    def _places_sync(self, reference: str) -> dict[str, Any]:
+        conn = self._connect()
+        parsed = self._parse(reference)
+        page = queries.get_places_for_reference(conn, parsed)
+        return {
+            "reference": parsed.echo,
+            "total": page.total,
+            "places": [
+                {
+                    "id": p.id,
+                    "friendly_id": p.friendly_id,
+                    "name": p.name,
+                    "type": p.type,
+                    "latitude": p.latitude,
+                    "longitude": p.longitude,
+                    "confidence": p.confidence,
+                    "confidence_score": p.confidence_score,
+                    "status": p.status,
+                }
+                for p in page.rows
+            ],
+        }
+
+    def _list_journeys_sync(self) -> dict[str, Any]:
+        conn = self._connect()
+        page = queries.list_journeys(conn, 50, 0)
+        return {
+            "limit": 50,
+            "offset": 0,
+            "total": page.total,
+            "journeys": [
+                {
+                    "id": j.id,
+                    "name": j.name,
+                    "scripture": j.scripture,
+                    "dating": j.dating,
+                    "stop_count": j.stop_count,
+                }
+                for j in page.rows
+            ],
+        }
+
+    def _journey_detail_sync(self, journey_id: str) -> dict[str, Any]:
+        conn = self._connect()
+        journey = queries.get_journey(conn, journey_id)
+        if journey is None:
+            raise ApiError(
+                404,
+                "unknown_journey",
+                f"no journey with id {journey_id!r}",
+                {"journey_id": journey_id},
+            )
+        return {
+            "id": journey.id,
+            "name": journey.name,
+            "scripture": journey.scripture,
+            "dating": journey.dating,
+            "source": journey.source,
+            "note": journey.note,
+            "stops": [
+                {
+                    "ordinal": s.ordinal,
+                    "place_id": s.place_id,
+                    "name": s.name,
+                    "friendly_id": s.friendly_id,
+                    "latitude": s.latitude,
+                    "longitude": s.longitude,
+                    "confidence": s.confidence,
+                    "status": s.status,
+                    "reference": s.reference,
+                }
+                for s in queries.get_journey_stops(conn, journey.id)
+            ],
+        }
+
+    def _random_sync(
+        self, book: str | None, testament: str | None, translation: str | None
+    ) -> dict[str, Any]:
+        conn = self._connect()
+        (translation_id,) = self._resolve_translations(
+            [translation] if translation else None
+        )
+
+        book_id: str | None = None
+        if book and book.strip():
+            info = SqliteBookResolver(conn).resolve(book)
+            if info is None:
+                raise ApiError(400, "unknown_book", f"unknown book filter {book!r}")
+            book_id = info.id
+
+        testament_id: str | None = None
+        if testament and testament.strip():
+            testament_id = testament.strip().upper()
+            if testament_id not in ("OT", "NT"):
+                raise ApiError(
+                    422,
+                    "invalid_parameter",
+                    f"testament must be 'OT' or 'NT', got {testament!r}",
+                )
+
+        chosen = queries.get_random_verse(conn, translation_id, book_id, testament_id)
+        if chosen is None:
+            raise ApiError(404, "no_match", "no verse matches the requested filters")
+        return {
+            "translation": translation_id,
+            "book": book_id,
+            "testament": testament_id,
+            "verse": {
+                "book": chosen.book_id,
+                "chapter": chosen.chapter,
+                "verse": chosen.verse,
+                "reference": f"{chosen.book_name} {chosen.chapter}:{chosen.verse}",
+                "text": chosen.text,
+            },
+        }
+
     def _parse(self, reference: str) -> Reference:
         """parse_reference with the S1 error mapping."""
         try:
