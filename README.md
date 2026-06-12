@@ -37,7 +37,7 @@ Add to `claude_desktop_config.json` (Settings → Developer → Edit Config):
     "concord": {
       "command": "uv",
       "args": ["--directory", "/path/to/concord-mcp", "run", "concord-mcp"],
-      "env": { "CONCORD_URL": "http://192.168.1.62:8000" }
+      "env": { "CONCORD_URL": "http://<your-concord-host>:port-number" }
     }
   }
 }
@@ -49,14 +49,14 @@ it call `lookup_verse` instead of reciting from memory.
 ### Claude Code
 
 ```bash
-claude mcp add concord --env CONCORD_URL=http://192.168.1.62:8000 \
+claude mcp add concord --env CONCORD_URL=http://<your-concord-host>:port-number \
   -- uv run --directory /path/to/concord-mcp concord-mcp
 ```
 
 ### MCP Inspector (manual harness)
 
 ```bash
-npx @modelcontextprotocol/inspector -e CONCORD_URL=http://192.168.1.62:8000 uv run concord-mcp
+npx @modelcontextprotocol/inspector -e CONCORD_URL=http://<your-concord-host>:port-number uv run concord-mcp
 ```
 
 ## Tools (slice 1)
