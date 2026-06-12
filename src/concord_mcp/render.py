@@ -363,3 +363,78 @@ def render_random(payload: dict[str, Any]) -> str:
         f"Random verse ({', '.join(filters)}):\n"
         f"{verse['reference']} ({payload['translation']}) — {verse['text']}"
     )
+
+
+# FTS5 wraps matched terms in <mark>…</mark>; lines must be quotable, so the
+# markers are stripped. The FTS5 ellipsis is the faithful truncation signal:
+# it appears exactly when the 32-token snippet window cut the verse short.
+_EXCERPT_FOOTER = (
+    "Lines marked [excerpt] are partial — use lookup_verse for the full verse."
+)
+
+
+def _strip_marks(snippet: str) -> str:
+    return snippet.replace("<mark>", "").replace("</mark>", "")
+
+
+def _search_line(reference: str, translation: str, snippet: str) -> tuple[str, bool]:
+    """One search hit line + whether it is an excerpt (SPEC §5)."""
+    text = _strip_marks(snippet)
+    is_excerpt = "…" in snippet
+    marker = " [excerpt]" if is_excerpt else ""
+    return f"{reference} ({translation}){marker} — {text}", is_excerpt
+
+
+def render_search(payload: dict[str, Any]) -> str:
+    """/v1/search (single or multi-translation) → quotable tagged lines."""
+    query = payload["query"]
+    searched = payload.get("translations") or [payload["translation"]]
+    set_label = ", ".join(searched)
+    if not payload["hits"]:
+        return (
+            f'No verses contain "{query}" in {set_label} — for ideas or themes'
+            " rather than exact wording, try search_by_meaning."
+        )
+
+    total = payload["total"]
+    lines = [
+        f'Verses containing "{query}" ({set_label}) — {total}'
+        f" match{'es' if total != 1 else ''}:"
+    ]
+    any_excerpt = False
+    for hit in payload["hits"]:
+        matches = hit.get("matches") or {payload["translation"]: hit["snippet"]}
+        for translation, snippet in matches.items():
+            line, is_excerpt = _search_line(hit["reference"], translation, snippet)
+            any_excerpt = any_excerpt or is_excerpt
+            lines.append(line)
+    truncation = _true_total_truncation(len(payload["hits"]), total)
+    if truncation:
+        lines.append(truncation)
+    if any_excerpt:
+        lines.append(_EXCERPT_FOOTER)
+    return "\n".join(lines)
+
+
+def render_translations(payload: dict[str, Any]) -> str:
+    """concord://translations — one line per loaded translation."""
+    lines = ["Loaded translations:"]
+    for t in payload["translations"]:
+        line = f"{t['id']} — {t['name']} ({t['language']})"
+        if t["attribution"]:
+            line += f" — {t['attribution']}"
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def render_books(payload: dict[str, Any]) -> str:
+    """concord://books — the 66-book catalog."""
+    lines = ["Books:"]
+    for b in payload["books"]:
+        line = f"{b['id']} — {b['name']} ({b['testament']}"
+        if b["chapter_count"]:
+            count = b["chapter_count"]
+            line += f", {count} chapter{'s' if count != 1 else ''}"
+        line += ")"
+        lines.append(line)
+    return "\n".join(lines)
