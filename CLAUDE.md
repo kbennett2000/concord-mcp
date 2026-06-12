@@ -94,4 +94,5 @@ makes the repo harder for that reader, it needs a very good reason.
 
 README and docs follow the family voice: show the win before the explanation,
 write for one real reader, no unexplained tooling jargon, just-in-time not
-just-in-case.
+just-in-case. The README is written for the non-technical reader;
+developer-facing content lives in `docs/DEVELOPERS.md`.

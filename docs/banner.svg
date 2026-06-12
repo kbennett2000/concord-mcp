@@ -1,0 +1,32 @@
+<svg width="1280" height="320" viewBox="0 0 1280 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="concord-mcp — looked up, never made up. Built on Concord.">
+  <title>concord-mcp — looked up, never made up.</title>
+  <desc>Banner for concord-mcp. The wordmark "concord-mcp" set in a warm indigo serif on a warm cream background, with a small open book and magnifying glass ornament centered above, the italic tagline "looked up, never made up." centered below, and the family lineage mark "built on Concord".</desc>
+
+  <rect width="1280" height="320" fill="#F5ECDB"/>
+
+  <!-- Open book with a magnifier over it: looked up, on the shelf -->
+  <g transform="translate(640, 62)" stroke-linecap="round" stroke-linejoin="round">
+    <!-- open book -->
+    <path d="M -34 6 C -24 -2 -10 -4 0 0 C 10 -4 24 -2 34 6 L 34 22 C 24 14 10 12 0 16 C -10 12 -24 14 -34 22 Z"
+          fill="none" stroke="#4A6B3C" stroke-width="2.6"/>
+    <line x1="0" y1="0" x2="0" y2="16" stroke="#4A6B3C" stroke-width="2"/>
+    <!-- magnifier -->
+    <circle cx="14" cy="-12" r="9" fill="none" stroke="#2A4A6B" stroke-width="2.6"/>
+    <line x1="20.5" y1="-5.5" x2="29" y2="3" stroke="#2A4A6B" stroke-width="3"/>
+  </g>
+
+  <text x="640" y="212" text-anchor="middle"
+        font-family="'EB Garamond', 'Cormorant Garamond', Garamond, Georgia, 'Times New Roman', serif"
+        font-size="104" fill="#2A4A6B" font-weight="500" letter-spacing="2">concord-mcp</text>
+
+  <text x="640" y="256" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="22" fill="#4F6A85" font-style="italic" letter-spacing="3">looked up, never made up.</text>
+
+  <g>
+    <rect x="586" y="282" width="9" height="9" transform="rotate(45 590.5 286.5)" fill="#A6492C"/>
+    <text x="606" y="293"
+          font-family="Georgia, 'Palatino Linotype', 'Times New Roman', serif"
+          font-size="17" fill="#8A775A">built on Concord</text>
+  </g>
+</svg>
