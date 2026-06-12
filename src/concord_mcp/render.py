@@ -258,3 +258,108 @@ def topic_zero_match(query: str) -> str:
         f'No topical-Bible entry matches "{query}". Nave\'s indexes classic'
         " study subjects; for ideas in your own words, use search_by_meaning."
     )
+
+
+# The §5 no-pin sentences — the ONLY rendering for the three null-coordinate
+# statuses; no code path may emit a coordinate (or 0,0) for them.
+_NO_PIN = {
+    "unknown": "location genuinely unknown, no coordinates",
+    "symbolic": "a symbolic name, not a mappable location",
+    "multiple": "several locations across history, no single pin",
+}
+
+
+def _coords(latitude: float, longitude: float) -> str:
+    """Degree-and-hemisphere style: 40.8202°N, 23.8472°E."""
+    ns = "N" if latitude >= 0 else "S"
+    ew = "E" if longitude >= 0 else "W"
+    return f"{abs(latitude):.4f}°{ns}, {abs(longitude):.4f}°{ew}"
+
+
+def _place_line(
+    name: str,
+    place_type: str | None,
+    status: str,
+    latitude: float | None,
+    longitude: float | None,
+    confidence: str | None,
+) -> str:
+    """The one place renderer (SPEC §5) — passage lists and journey stops alike."""
+    prefix = f"{name} ({place_type})" if place_type else name
+    if status in _NO_PIN:
+        return f"{prefix} — {status} — {_NO_PIN[status]}"
+    flag = " (identification contested)" if status == "disputed" else ""
+    line = f"{prefix} — {status}{flag}"
+    if latitude is not None and longitude is not None:
+        line += f" — {_coords(latitude, longitude)}"
+        if confidence:
+            line += f" (confidence {confidence})"
+    return line
+
+
+def render_places(payload: dict[str, Any]) -> str:
+    """/v1/verses/{ref}/places → one §5 place line per place."""
+    reference = payload["reference"]
+    if not payload["places"]:
+        return f"No places are named in {reference}."
+    lines = [f"Places named in {reference} ({payload['total']}):"]
+    lines += [
+        _place_line(
+            p["name"],
+            p["type"],
+            p["status"],
+            p["latitude"],
+            p["longitude"],
+            p["confidence"],
+        )
+        for p in payload["places"]
+    ]
+    return "\n".join(lines)
+
+
+def render_journeys_list(payload: dict[str, Any]) -> str:
+    """/v1/journeys → id-first summaries plus the detail-call teaching line."""
+    lines = [f"Curated journeys ({payload['total']}):"]
+    for j in payload["journeys"]:
+        parts = [j["scripture"]]
+        if j["dating"]:
+            parts.append(j["dating"])
+        parts.append(f"{j['stop_count']} stops")
+        lines.append(f"{j['id']} — {j['name']} ({'; '.join(parts)})")
+    lines.append("Call journeys with a journey_id for the ordered stops.")
+    return "\n".join(lines)
+
+
+def render_journey_detail(payload: dict[str, Any]) -> str:
+    """/v1/journeys/{id} → attribution header first, then the ordered stops."""
+    header = f"{payload['name']} ({payload['id']}) — {payload['scripture']}"
+    if payload["dating"]:
+        header += f", dating: {payload['dating']}"
+    lines = [header, f"{payload['note']} (source: {payload['source']})"]
+    for stop in payload["stops"]:
+        line = f"{stop['ordinal']}. " + _place_line(
+            stop["name"] or stop["place_id"],
+            None,
+            stop["status"] or "unknown",
+            stop["latitude"],
+            stop["longitude"],
+            stop["confidence"],
+        )
+        if stop["reference"]:
+            line += f" — {stop['reference']}"
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def render_random(payload: dict[str, Any]) -> str:
+    """/v1/random → a header echoing the filters + one standard tagged line."""
+    filters = [payload["translation"]]
+    if payload["book"]:
+        filters.append(f"book {payload['book']}")
+    if payload["testament"]:
+        filters.append(payload["testament"])
+    verse = payload["verse"]
+    return (
+        f"Random verse ({', '.join(filters)}):\n"
+        f"{verse['reference']} ({payload['translation']}) — {verse['text']}"
+    )
