@@ -245,3 +245,84 @@ async def test_unknown_topic_error_code(call):
         await call("topic_verses", "error_unknown_topic", 404, topic_id="caare")
     assert excinfo.value.status == 404
     assert excinfo.value.code == "unknown_topic"
+
+
+# --- S4 geography, journeys, random -------------------------------------------------
+
+
+async def test_places_mixed_statuses(call, fixture):
+    payload = await call(
+        "places_for_passage", "places_john2116", 200, reference="John 21:16"
+    )
+    assert payload == fixture("places_john2116")
+
+
+async def test_places_land_of_nod_unknown(call, fixture):
+    payload = await call(
+        "places_for_passage", "places_gen416", 200, reference="Genesis 4:16"
+    )
+    assert payload == fixture("places_gen416")
+    nod = payload["places"][0]
+    assert nod["status"] == "unknown"
+    assert nod["latitude"] is None and nod["longitude"] is None
+
+
+async def test_places_empty_passage(call, fixture):
+    payload = await call(
+        "places_for_passage", "places_empty", 200, reference="John 3:16"
+    )
+    assert payload == fixture("places_empty")
+
+
+async def test_journeys_list(call, fixture):
+    payload = await call("list_journeys", "journeys_list", 200)
+    assert payload == fixture("journeys_list")
+
+
+async def test_journey_detail_with_disputed_and_unknown_stops(call, fixture):
+    payload = await call(
+        "journey_detail", "journey_galilee_loop", 200, journey_id="galilee-loop"
+    )
+    assert payload == fixture("journey_galilee_loop")
+    statuses = [s["status"] for s in payload["stops"]]
+    assert statuses == ["identified", "disputed", "unknown", "identified"]
+
+
+async def test_unknown_journey_error_code(call):
+    with pytest.raises(ApiError) as excinfo:
+        await call(
+            "journey_detail", "error_unknown_journey", 404, journey_id="paul-fourth"
+        )
+    assert excinfo.value.status == 404
+    assert excinfo.value.code == "unknown_journey"
+
+
+async def test_random_single_candidate_universe(call, fixture):
+    # YLT holds exactly one verse, so this draw is deterministic on both
+    # backends — the scenario proves filter plumbing and shape, the things
+    # parity can prove; randomness itself is asserted in test_inprocess_backend.
+    payload = await call(
+        "random_verse", "random_gen_ylt", 200, book="Gen", translation="YLT"
+    )
+    assert payload == fixture("random_gen_ylt")
+
+
+async def test_random_no_match_error_code(call):
+    with pytest.raises(ApiError) as excinfo:
+        await call(
+            "random_verse",
+            "error_no_match",
+            404,
+            book="Gen",
+            testament="NT",
+            translation="YLT",
+        )
+    assert excinfo.value.status == 404
+    assert excinfo.value.code == "no_match"
+
+
+async def test_random_unknown_book_error_code(call, fixture):
+    with pytest.raises(ApiError) as excinfo:
+        await call("random_verse", "error_unknown_book", 400, book="Hezekiah")
+    assert excinfo.value.status == 400
+    assert excinfo.value.code == "unknown_book"
