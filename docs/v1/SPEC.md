@@ -155,8 +155,8 @@ local Concord.
 | `CONCORD_MCP_DEFAULT_TRANSLATION` | `KJV` | Used when the caller omits a translation. Mirrors Concord's default. Always sent explicitly to the semantic-search endpoint, which would otherwise default to WEB. |
 | `CONCORD_MCP_TIMEOUT_S` | `10` | Per-request timeout (`http` mode). Aligned with Concord's semantic deadline. |
 | `CONCORD_MCP_MAX_RESULTS` | `25` | Server-side clamp on any `limit`. |
-| `BIBLE_DB_PATH` | — | Path to `bible.db` (`inprocess` mode). |
-| `CONCORD_SEMANTIC_ASSETS` | — | Path to embedding model + vector artifacts (`inprocess` mode); exact contents per ADR 0004. |
+| `BIBLE_DB_PATH` | `data/concord/bible.db` | Path to `bible.db` (`inprocess` mode). Matches the `make get-db` output (ADR 0004). |
+| `CONCORD_SEMANTIC_ASSETS` | `data/concord/semantic` | Directory of semantic artifacts (`inprocess` mode): `model/` (tokenizer.json + `onnx/*.onnx`) and `embeddings.db`, as extracted by `make get-db` (ADR 0004). Relative paths resolve against the working directory. |
 
 ## 8. Errors
 
@@ -171,6 +171,9 @@ Errors are written for the model to self-correct from:
   retry in {n}s" and honor one polite retry; no retry storms.
 - Missing semantic artifacts (`inprocess`) → name the two fixes: switch to
   `http` mode, or run the acquisition steps (ADR 0004).
+- Missing `bible.db` (`inprocess`) → name both fixes: run `make get-db`, or
+  set `BIBLE_DB_PATH` (or switch to `http` mode). Affects both tools; the
+  server still starts and answers with this error rather than crashing.
 
 ## 9. Testing
 

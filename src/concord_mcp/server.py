@@ -17,6 +17,8 @@ from concord_mcp.backends import (
     ConcordBusy,
     ConcordUnreachable,
     HttpBackend,
+    InProcessBackend,
+    LocalDataMissing,
 )
 from concord_mcp.config import Config
 from concord_mcp.render import render_semantic, render_verses
@@ -76,6 +78,8 @@ def render_error(exc: BackendError, hint: str) -> str:
         )
     if isinstance(exc, ConcordBusy):
         return f"Concord is busy; retry in {exc.retry_after:g}s."
+    if isinstance(exc, LocalDataMissing):
+        return str(exc)  # already names the fixes (SPEC §8)
     if isinstance(exc, ApiError):
         if exc.code == "unknown_translation":
             return (
@@ -166,5 +170,10 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
 
 def main() -> None:
     config = Config.from_env()
-    server = create_server(config, HttpBackend(config))
+    backend: ConcordBackend = (
+        InProcessBackend(config)
+        if config.backend == "inprocess"
+        else HttpBackend(config)
+    )
+    server = create_server(config, backend)
     server.run()

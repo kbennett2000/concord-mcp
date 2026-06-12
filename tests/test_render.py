@@ -17,12 +17,12 @@ def test_multi_translation_emits_one_line_per_translation(fixture):
 def test_range_emits_every_verse_with_its_own_tag(fixture):
     out = render_verses(fixture("verses_psalm23_range"))
     for v in (1, 2, 3):
-        assert f"Psalm 23:{v} (KJV) — " in out
+        assert f"Psalms 23:{v} (KJV) — " in out
 
 
 def test_null_text_renders_as_not_available_never_fabricated(fixture):
     out = render_verses(fixture("verses_psalm23_range"))
-    assert "Psalm 23:1 (YLT) — [not available in this translation]" in out
+    assert "Psalms 23:1 (YLT) — [not available in this translation]" in out
 
 
 def test_semantic_lines_carry_tag_score_and_rank_order(fixture):

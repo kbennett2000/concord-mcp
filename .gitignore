@@ -7,8 +7,9 @@ __pycache__/
 # Local environment
 .env
 
-# Data that never lands in git (see CLAUDE.md and ADR 0004)
-data/private/
+# Data that never lands in git (see CLAUDE.md and ADR 0004) — fixtures live
+# in tests/fixtures/, everything under data/ is acquired or operator-supplied
+data/
 *.db
 models/
 vectors/
