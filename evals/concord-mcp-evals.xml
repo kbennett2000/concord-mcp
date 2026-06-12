@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  concord-mcp v1.0.0 eval set.
+
+  Ten read-only questions, each requiring two or more tool calls across at
+  least two tool families. Collectively they exercise all ten tools. Every
+  expected answer was verified against the data Concord's published image
+  bakes (data/translations/KJV.json, data/topics/naves.json,
+  data/strongs/lexicon.json + tokens-sblgnt.json,
+  data/cross-references/cross_references.txt, data/journeys/journeys.json,
+  data/geography/ancient.jsonl, at concord v1.2.0).
+
+  Run protocol: see evals/README.md. Manual check is fact-presence, not
+  string equality.
+-->
+<evaluation>
+
+  <!-- tools: word_study, strongs_entry -->
+  <qa_pair id="1">
+    <question>In John 21:15-17, Jesus and Peter use two different Greek verbs for "love". Which two, and what does the second one mean?</question>
+    <answer>ἀγαπάω (agapaō, G25) and φιλέω (phileō, G5368). Verse 17 uses only φιλέω. Per the STEP lexicon, φιλέω means "to love (with the love of emotion and friendship)".</answer>
+  </qa_pair>
+
+  <!-- tools: topic_verses, lookup_verse -->
+  <qa_pair id="2">
+    <question>What's the first verse Nave's Topical Bible lists under CARE, and what does it say?</question>
+    <answer>Psalms 37:5 (the topic has 53 verses): "Commit thy way unto the LORD; trust also in him; and he shall bring [it] to pass." (KJV)</answer>
+  </qa_pair>
+
+  <!-- tools: cross_references, lookup_verse -->
+  <qa_pair id="3">
+    <question>What's the most strongly linked cross-reference for John 3:16, and what does that verse say?</question>
+    <answer>Romans 5:8, with 968 votes: "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us." (KJV)</answer>
+  </qa_pair>
+
+  <!-- tools: lookup_verse, places_for_passage -->
+  <qa_pair id="4">
+    <question>Where was the land of Nod, and what happened there?</question>
+    <answer>Genesis 4:16 — Cain dwelt there after leaving the LORD's presence, "on the east of Eden". Its location is genuinely unknown: status unknown, no coordinates — the answer must not invent a pin.</answer>
+  </qa_pair>
+
+  <!-- tools: journeys (list + detail), lookup_verse -->
+  <qa_pair id="5">
+    <question>What verse anchors the final stop of Paul's first missionary journey, and what does it say?</question>
+    <answer>The journey (paul-first, 15 stops) ends back at Antioch, anchored by Acts 14:26: "And thence sailed to Antioch, from whence they had been recommended to the grace of God for the work which they fulfilled." (KJV)</answer>
+  </qa_pair>
+
+  <!-- tools: strongs_entry, word_study -->
+  <qa_pair id="6">
+    <question>What is Strong's G26 — its lemma and meaning — and is it the word used in 1 Corinthians 13:1?</question>
+    <answer>ἀγάπη (agapē): "love, goodwill, esteem". Yes — 1 Corinthians 13:1 contains ἀγάπην, tagged G26.</answer>
+  </qa_pair>
+
+  <!-- tools: search_keyword, lookup_verse -->
+  <qa_pair id="7">
+    <question>Which KJV verse contains the exact phrase "still waters"?</question>
+    <answer>Exactly one: Psalms 23:2 — "He maketh me to lie down in green pastures: he leadeth me beside the still waters."</answer>
+  </qa_pair>
+
+  <!-- tools: search_by_meaning, lookup_verse.
+       Design note: semantic rankings depend on the embedding model, so
+       membership is exercised but deliberately not answer-critical; the
+       verified fact is the quoted verse. -->
+  <qa_pair id="8">
+    <question>Find verses about anxiety, then quote Philippians 4:6 in full.</question>
+    <answer>Philippians 4:6 (KJV): "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God."</answer>
+  </qa_pair>
+
+  <!-- tools: random_verse, lookup_verse.
+       Design note: random_verse is the one non-deterministic tool, so this
+       pair is property-checked: any verse passes if it is tagged in Psalms
+       and the lookup text matches the random text exactly. -->
+  <qa_pair id="9">
+    <question>Give me a random verse from Psalms, then look it up to confirm the text.</question>
+    <answer>Any Psalms verse, correctly tagged (Psalms C:V (TRANSLATION)), with the lookup_verse text matching the random_verse text exactly.</answer>
+  </qa_pair>
+
+  <!-- tools: topic_verses (see-also redirect), lookup_verse -->
+  <qa_pair id="10">
+    <question>Does Nave's have an entry for ACCOMPLICE? Where does it lead, and what's the first verse there?</question>
+    <answer>Yes — it redirects: "See COMPLICITY" (42 verses). The first verse is Psalms 50:18: "When thou sawest a thief, then thou consentedst with him, and hast been partaker with adulterers." (KJV)</answer>
+  </qa_pair>
+
+</evaluation>
