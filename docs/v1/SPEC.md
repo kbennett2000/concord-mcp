@@ -268,4 +268,9 @@ One PR per slice; each lands green and reviewable on its own.
 Streamable-HTTP transport for a LAN-served MCP endpoint; tools over
 operator-supplied translator's notes; a `study_passage` MCP prompt that
 orchestrates word study + cross-references + places; publishing
-`bible-core` to PyPI; MCP registry listing.
+`bible-core` to PyPI; MCP registry listing; publishing **concord-mcp
+itself** to PyPI so `uvx concord-mcp` replaces the clone-and-sync install
+(deferred until the git-subdirectory deps have a published path too); an
+**automated eval harness** over `evals/concord-mcp-evals.xml` (v1 ships
+the manual fact-presence protocol — automation needs an LLM-judge or
+stable string contract that the manual pass doesn't).

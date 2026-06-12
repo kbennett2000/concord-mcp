@@ -9,7 +9,7 @@ Concord you control, on your LAN or in-process on your machine, fully offline on
 up. The assistant inherits Concord's honesty about uncertainty instead of inventing
 coordinates and citations.
 
-**Status: pre-v1 — slice 5a under review.**
+**Status: v1.0.0 (release prep under review).**
 
 The full design lives in [docs/v1/SPEC.md](docs/v1/SPEC.md).
 
@@ -131,5 +131,23 @@ repo's `make get-db` never builds Concord from source, deliberately (ADR 0004).
 - `random_verse` — one random verse, optionally filtered by book or testament.
 
 Every verse comes back tagged `Book Chapter:Verse (TRANSLATION)`, so citations are
-verifiable. The rest of the ten-tool surface lands slice by slice — see
-[SPEC §11](docs/v1/SPEC.md#11-slice-plan).
+verifiable. The full contract lives in [SPEC §4](docs/v1/SPEC.md#4-tool-surface-the-contract);
+the verified ten-question eval set is in [evals/](evals/).
+
+## Demo
+
+Ask Claude Desktop the first eval question — *"In John 21:15-17, Jesus and Peter
+use two different Greek verbs for 'love'. Which two, and what does the second
+one mean?"* — and watch it chain `word_study` into `strongs_entry`:
+
+<!-- Bobby: paste your Claude Desktop transcript from the eval gate run here.
+     Real output only — this block ships empty until the gate run. -->
+> *(transcript pending the v1.0.0 eval gate run)*
+
+## Part of the Concord family
+
+concord-mcp is a sibling of [songbird](https://github.com/kbennett2000/songbird)
+in the "Building on Concord" ecosystem: a consumer of
+[Concord](https://github.com/kbennett2000/concord)'s `/v1` contract, never a fork
+of the engine. It is also the destination codebase for the planned
+`concord-tutorial-ai` course — built to be read top to bottom in one sitting.
