@@ -153,6 +153,17 @@ all are `idempotentHint: true` except `random_verse`.
   unlabeled, separated by blank lines — never best-effort labels. Output is
   capped at 10 verse blocks: "showing first 10 of {n} verses — request a
   narrower range".
+- Keyword-search output strips the API's `<mark>` highlighters — lines must
+  be quotable. Header `Verses containing "{q}" ({set}) — {total} match(es):`;
+  lines are standard tagged lines built from the search snippet. FTS5
+  snippets are 32-token windows: a snippet without the `…` ellipsis IS the
+  full verse text and renders as usual; an ellipsized snippet carries
+  `[excerpt]` after its tag, and any output containing excerpt lines ends
+  with "Lines marked [excerpt] are partial — use lookup_verse for the full
+  verse." Multi-translation searches render one line per matching
+  translation per verse. True-total truncation applies. Zero hits route:
+  "No verses contain "{q}" in {set} — for ideas or themes rather than exact
+  wording, try search_by_meaning."
 - Cross-reference lines carry the target reference (ranges included), the
   community vote count verbatim (`Romans 5:8 (KJV) [votes 968] — …`), and —
   with `include_text` — the target's opening verse only, stated in the header.
@@ -197,6 +208,9 @@ Errors are written for the model to self-correct from:
   CONCORD_URL.)"
 - `503` + `Retry-After` from semantic search → surface as "Concord is busy;
   retry in {n}s" and honor one polite retry; no retry storms.
+- Malformed FTS5 search (`invalid_search_query`) → echo Concord's fts5
+  detail and add: quote multi-word phrases ("still waters"); avoid stray
+  punctuation.
 - Unknown journey id → enumerate the valid ids in the error (the set is
   small; that is model-correctable gold).
 - `random_verse` filters: unknown `book` → echo plus the expected forms
@@ -246,7 +260,8 @@ One PR per slice; each lands green and reviewable on its own.
 | S2 | `feat/inprocess-backend` | `InProcessBackend` importing `bible-core` (+ optional `bible-semantic`); `make get-db` acquisition per ADR 0004; graceful semantic degradation. | Same two tools pass with no Concord container running; acquisition steps reproduced from scratch by Bobby. |
 | S3 | `feat/study-tools` | `cross_references`, `word_study`, `strongs_entry`, `topic_verses` — both backends. | Unit-tested; Inspector spot-check on John 21:15-17 word study. |
 | S4 | `feat/geo-journeys` | `places_for_passage`, `journeys`, `random_verse`. | Honesty lines verified against a known `unknown` place (land of Nod) and a journey's source attribution. |
-| S5 | `feat/resources-polish` | MCP resources (§6); `evals/concord-mcp-evals.xml` — 10 read-only, multi-tool, verifiable QA pairs; README demo; CHANGELOG; release-prep. | Eval answers verified by hand; v1.0.0 tagged after explicit authorization (two-stop gate). |
+| S5a | `feat/complete-surface` | `search_keyword` (orphaned in the original table: referenced by two tool descriptions since S1, assigned a slice only here); MCP resources (§6); the server instructions rewrite to route all ten tools. | Inspector keyword checks (single, multi-translation, zero-hit); resources visible in a real client; CI green. |
+| S5b | `feat/release-prep` | `evals/concord-mcp-evals.xml` — 10 read-only, multi-tool, verifiable QA pairs; README demo; CHANGELOG; version 1.0.0 reconciliation. | Eval answers verified by hand in Claude Desktop; v1.0.0 tagged after explicit authorization (two-stop gate; the tag never ships in the PR). |
 
 ## 12. Deferred (post-v1)
 

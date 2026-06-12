@@ -9,7 +9,7 @@ Concord you control, on your LAN or in-process on your machine, fully offline on
 up. The assistant inherits Concord's honesty about uncertainty instead of inventing
 coordinates and citations.
 
-**Status: pre-v1 — slice 4 under review.**
+**Status: pre-v1 — slice 5a under review.**
 
 The full design lives in [docs/v1/SPEC.md](docs/v1/SPEC.md).
 
@@ -44,7 +44,9 @@ Add to `claude_desktop_config.json` (Settings → Developer → Edit Config):
 ```
 
 Restart Claude Desktop, then try: *"What does John 3:16 say in the WEB?"* — and watch
-it call `lookup_verse` instead of reciting from memory.
+it call `lookup_verse` instead of reciting from memory. The server also exposes two
+resources — `concord://translations` and `concord://books` — so the client can show
+what's loaded without spending a tool call.
 
 ### Claude Code
 
@@ -110,6 +112,8 @@ repo's `make get-db` never builds Concord from source, deliberately (ADR 0004).
 
 - `lookup_verse` — exact text of a verse, range, list, or chapter, in one or more
   translations. `John 3:16`, `Genesis 1:1-5`, `Psalm 23`.
+- `search_keyword` — verses containing an exact word or phrase ("still waters"),
+  with side-by-side translation comparison.
 - `search_by_meaning` — verses by idea or theme ("verses about anxiety"), ranked by
   closeness of meaning, even when they don't contain the words.
 - `cross_references` — the passages traditionally linked to a verse, ranked by
