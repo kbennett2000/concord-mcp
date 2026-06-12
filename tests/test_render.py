@@ -48,4 +48,6 @@ def test_semantic_no_truncation_line_below_limit(fixture):
 
 def test_semantic_empty_results(fixture):
     out = render_semantic(fixture("semantic_empty"), limit=10)
-    assert out == 'No verses matched "quantum chromodynamics" — try rephrasing the idea.'
+    assert (
+        out == 'No verses matched "quantum chromodynamics" — try rephrasing the idea.'
+    )

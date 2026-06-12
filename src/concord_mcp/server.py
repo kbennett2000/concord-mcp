@@ -40,7 +40,7 @@ LOOKUP_VERSE_DESCRIPTION = (
     "Fetch the exact text of a Bible verse, verse range, verse list, or whole"
     " chapter. Use this whenever you already have a reference — 'John 3:16',"
     " 'Genesis 1:1-5', 'Psalm 23', 'Romans 3:23,6:23'. Pass translations to"
-    " compare versions side by side (e.g. [\"KJV\", \"WEB\"]; default is the"
+    ' compare versions side by side (e.g. ["KJV", "WEB"]; default is the'
     " server's configured translation, KJV). Returns each verse on its own"
     " line, tagged 'Book Chapter:Verse (TRANSLATION)' so you can cite it"
     " exactly. If you don't have a reference, use search_keyword for exact"
@@ -64,9 +64,7 @@ SEARCH_BY_MEANING_DESCRIPTION = (
 REFERENCE_HINT = (
     "Expected a reference like 'John 3:16', 'Genesis 1:1-5', or 'Psalm 23'."
 )
-SEARCH_HINT = (
-    "Check the parameters: limit must be 1-25 and min_score between -1 and 1."
-)
+SEARCH_HINT = "Check the parameters: limit must be 1-25 and min_score between -1 and 1."
 
 
 def render_error(exc: BackendError, hint: str) -> str:

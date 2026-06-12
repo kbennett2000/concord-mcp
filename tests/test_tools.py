@@ -81,9 +81,7 @@ async def test_limit_is_clamped_to_max_results(server, fixture):
         json=fixture("semantic_anxious")
     )
     async with create_connected_server_and_client_session(server) as session:
-        await session.call_tool(
-            "search_by_meaning", {"query": "shepherd", "limit": 99}
-        )
+        await session.call_tool("search_by_meaning", {"query": "shepherd", "limit": 99})
 
     assert route.calls.last.request.url.params["limit"] == "25"
 
@@ -94,9 +92,7 @@ async def test_bad_reference_returns_correctable_text(server, fixture):
         status_code=404, json=fixture("error_unknown_book")
     )
     async with create_connected_server_and_client_session(server) as session:
-        result = await session.call_tool(
-            "lookup_verse", {"reference": "Hezekiah 3:16"}
-        )
+        result = await session.call_tool("lookup_verse", {"reference": "Hezekiah 3:16"})
 
     text = result.content[0].text
     assert "unknown_book" in text
