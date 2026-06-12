@@ -20,7 +20,7 @@ def server():
     return create_server(config, HttpBackend(config))
 
 
-async def test_lists_exactly_nine_read_only_tools(server):
+async def test_lists_exactly_ten_read_only_tools(server):
     async with create_connected_server_and_client_session(server) as session:
         result = await session.list_tools()
 
@@ -35,6 +35,7 @@ async def test_lists_exactly_nine_read_only_tools(server):
         "places_for_passage",
         "journeys",
         "random_verse",
+        "search_keyword",
     }
     for tool in tools.values():
         assert tool.annotations.readOnlyHint is True
@@ -248,3 +249,59 @@ async def test_random_no_match_self_corrects(server, fixture):
     text = result.content[0].text
     assert "no_match" in text
     assert "contradictory filters match no verse" in text
+
+
+async def test_instructions_route_all_ten_tools(server):
+    names = (
+        "lookup_verse",
+        "search_keyword",
+        "search_by_meaning",
+        "topic_verses",
+        "cross_references",
+        "word_study",
+        "strongs_entry",
+        "places_for_passage",
+        "journeys",
+        "random_verse",
+    )
+    instructions = server._mcp_server.instructions
+    for name in names:
+        assert name in instructions
+    assert "quote and cite it exactly as returned" in instructions
+
+
+@respx.mock
+async def test_search_keyword_end_to_end(server, fixture):
+    respx.get(f"{BASE}/v1/search").respond(json=fixture("search_shepherd"))
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool("search_keyword", {"query": "shepherd"})
+
+    text = result.content[0].text
+    assert "Psalms 23:1 (KJV) — The LORD is my shepherd" in text
+
+
+@respx.mock
+async def test_search_keyword_zero_hits_routes(server, fixture):
+    respx.get(f"{BASE}/v1/search").respond(json=fixture("search_zero"))
+    async with create_connected_server_and_client_session(server) as session:
+        result = await session.call_tool("search_keyword", {"query": "zebra"})
+
+    assert "try search_by_meaning" in result.content[0].text
+
+
+@respx.mock
+async def test_resources_listed_and_readable(server, fixture):
+    respx.get(f"{BASE}/v1/translations").respond(json=fixture("resource_translations"))
+    async with create_connected_server_and_client_session(server) as session:
+        listing = await session.list_resources()
+        resources = {str(r.uri): r for r in listing.resources}
+        assert set(resources) == {"concord://translations", "concord://books"}
+        assert resources["concord://translations"].title == "Loaded translations"
+
+        from pydantic import AnyUrl
+
+        read = await session.read_resource(AnyUrl("concord://translations"))
+
+    content = read.contents[0]
+    assert content.mimeType == "text/plain"
+    assert "KJV — KJV (synthetic) (en) — Public domain." in content.text

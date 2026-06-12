@@ -412,6 +412,106 @@ class InProcessBackend:
             "verses": self._hydrated_verses(conn, rows, translation_id),
         }
 
+    # --- keyword search + catalogs (S5a) ------------------------------------------
+
+    async def search_keyword(
+        self, query: str, translations: list[str] | None = None, limit: int = 10
+    ) -> dict[str, Any]:
+        return await anyio.to_thread.run_sync(
+            partial(self._search_keyword_sync, query, translations, limit)
+        )
+
+    async def translations(self) -> dict[str, Any]:
+        return await anyio.to_thread.run_sync(self._translations_sync)
+
+    async def books(self) -> dict[str, Any]:
+        return await anyio.to_thread.run_sync(self._books_sync)
+
+    def _search_keyword_sync(
+        self, query: str, translations: list[str] | None, limit: int
+    ) -> dict[str, Any]:
+        conn = self._connect()
+        ids = self._resolve_translations(translations)
+        base = {
+            "query": query,
+            "translation": ids[0],
+            "book": None,
+            "limit": limit,
+            "offset": 0,
+        }
+        try:
+            if translations and len(ids) > 1:
+                page = queries.search_verses_multi(conn, query, ids, None, limit, 0)
+                return {
+                    **base,
+                    "translations": list(ids),
+                    "total": page.total,
+                    "hits": [
+                        {
+                            "book": h.book_id,
+                            "chapter": h.chapter,
+                            "verse": h.verse,
+                            "reference": f"{h.book_name} {h.chapter}:{h.verse}",
+                            "snippet": h.matches[0].snippet,
+                            "matches": {m.translation_id: m.snippet for m in h.matches},
+                        }
+                        for h in page.hits
+                    ],
+                }
+            single = queries.search_verses(conn, query, ids[0], None, limit, 0)
+        except queries.SearchQueryError as exc:
+            raise ApiError(
+                400,
+                "invalid_search_query",
+                "the search query is not a valid FTS5 expression",
+                {"fts5_error": str(exc)},
+            ) from exc
+        return {
+            **base,
+            "total": single.total,
+            "hits": [
+                {
+                    "book": h.book_id,
+                    "chapter": h.chapter,
+                    "verse": h.verse,
+                    "reference": f"{h.book_name} {h.chapter}:{h.verse}",
+                    "snippet": h.snippet,
+                }
+                for h in single.hits
+            ],
+        }
+
+    def _translations_sync(self) -> dict[str, Any]:
+        conn = self._connect()
+        return {
+            "translations": [
+                {
+                    "id": t.id,
+                    "name": t.name,
+                    "language": t.language,
+                    "direction": t.direction,
+                    "versification": t.versification,
+                    "attribution": t.attribution,
+                }
+                for t in queries.get_translations(conn)
+            ]
+        }
+
+    def _books_sync(self) -> dict[str, Any]:
+        conn = self._connect()
+        return {
+            "books": [
+                {
+                    "id": b.id,
+                    "name": b.name,
+                    "testament": b.testament,
+                    "chapter_count": b.chapter_count,
+                    "canonical_order": b.canonical_order,
+                }
+                for b in queries.get_books(conn)
+            ]
+        }
+
     # --- geography, journeys, random (S4) ----------------------------------------
 
     async def places_for_passage(self, reference: str) -> dict[str, Any]:

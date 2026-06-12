@@ -326,3 +326,51 @@ async def test_random_unknown_book_error_code(call, fixture):
         await call("random_verse", "error_unknown_book", 400, book="Hezekiah")
     assert excinfo.value.status == 400
     assert excinfo.value.code == "unknown_book"
+
+
+# --- S5a keyword search + catalogs ----------------------------------------------------
+
+
+async def test_search_keyword_single(call, fixture):
+    payload = await call("search_keyword", "search_shepherd", 200, query="shepherd")
+    assert payload == fixture("search_shepherd")
+
+
+async def test_search_keyword_excerpted_snippet(call, fixture):
+    payload = await call("search_keyword", "search_grieved", 200, query="grieved")
+    assert payload == fixture("search_grieved")
+    assert "…" in payload["hits"][0]["snippet"]  # the excerpt case is real
+
+
+async def test_search_keyword_multi_translation(call, fixture):
+    payload = await call(
+        "search_keyword",
+        "search_loved_multi",
+        200,
+        query="loved",
+        translations=["KJV", "WEB"],
+    )
+    assert payload == fixture("search_loved_multi")
+    assert list(payload["hits"][0]["matches"]) == ["KJV", "WEB"]
+
+
+async def test_search_keyword_zero(call, fixture):
+    payload = await call("search_keyword", "search_zero", 200, query="zebra")
+    assert payload == fixture("search_zero")
+
+
+async def test_invalid_search_query_error_code(call):
+    with pytest.raises(ApiError) as excinfo:
+        await call("search_keyword", "error_invalid_search", 400, query='"unclosed')
+    assert excinfo.value.status == 400
+    assert excinfo.value.code == "invalid_search_query"
+
+
+async def test_translations_catalog(call, fixture):
+    payload = await call("translations", "resource_translations", 200)
+    assert payload == fixture("resource_translations")
+
+
+async def test_books_catalog(call, fixture):
+    payload = await call("books", "resource_books", 200)
+    assert payload == fixture("resource_books")

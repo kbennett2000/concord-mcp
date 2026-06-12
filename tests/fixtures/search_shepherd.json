@@ -1,0 +1,17 @@
+{
+  "query": "shepherd",
+  "translation": "KJV",
+  "book": null,
+  "limit": 10,
+  "offset": 0,
+  "total": 1,
+  "hits": [
+    {
+      "book": "PSA",
+      "chapter": 23,
+      "verse": 1,
+      "reference": "Psalms 23:1",
+      "snippet": "The LORD is my <mark>shepherd</mark>; I shall not want."
+    }
+  ]
+}

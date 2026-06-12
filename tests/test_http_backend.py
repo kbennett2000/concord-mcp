@@ -246,3 +246,22 @@ async def test_random_omits_absent_filters(backend, fixture):
     await backend.random_verse()
     params = route.calls.last.request.url.params
     assert "book" not in params and "testament" not in params
+
+
+@respx.mock
+async def test_search_keyword_single_sends_default_translation(backend, fixture):
+    route = respx.get(f"{BASE}/v1/search").respond(json=fixture("search_shepherd"))
+    await backend.search_keyword("shepherd", limit=10)
+    params = route.calls.last.request.url.params
+    assert params["q"] == "shepherd"
+    assert params["translation"] == "KJV"
+    assert "translations" not in params
+
+
+@respx.mock
+async def test_search_keyword_multi_sends_csv(backend, fixture):
+    route = respx.get(f"{BASE}/v1/search").respond(json=fixture("search_loved_multi"))
+    await backend.search_keyword("loved", translations=["KJV", "WEB"])
+    params = route.calls.last.request.url.params
+    assert params["translations"] == "KJV,WEB"
+    assert "translation" not in params

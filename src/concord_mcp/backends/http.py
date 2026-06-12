@@ -106,6 +106,25 @@ class HttpBackend:
         )
         return self._payload_or_raise(response)
 
+    async def search_keyword(
+        self, query: str, translations: list[str] | None = None, limit: int = 10
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {"q": query, "limit": limit}
+        if translations:
+            params["translations"] = ",".join(translations)
+        else:
+            params["translation"] = self._config.default_translation
+        response = await self._get("/v1/search", params)
+        return self._payload_or_raise(response)
+
+    async def translations(self) -> dict[str, Any]:
+        response = await self._get("/v1/translations", {})
+        return self._payload_or_raise(response)
+
+    async def books(self) -> dict[str, Any]:
+        response = await self._get("/v1/books", {})
+        return self._payload_or_raise(response)
+
     async def places_for_passage(self, reference: str) -> dict[str, Any]:
         response = await self._get(f"/v1/verses/{quote(reference, safe='')}/places", {})
         return self._payload_or_raise(response)

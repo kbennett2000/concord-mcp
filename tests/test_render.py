@@ -2,6 +2,9 @@
 
 from concord_mcp.render import (
     _place_line,
+    render_books,
+    render_search,
+    render_translations,
     render_cross_references,
     render_journey_detail,
     render_journeys_list,
@@ -307,3 +310,63 @@ def test_random_render(fixture):
     out = render_random(fixture("random_gen_ylt"))
     assert out.splitlines()[0] == "Random verse (YLT, book GEN):"
     assert out.splitlines()[1] == "Genesis 1:1 (YLT) — In the beginning…"
+
+
+# --- keyword search + resources (§5, S5a) -------------------------------------------
+
+
+def test_search_strips_marks_and_full_verse_has_no_excerpt_marker(fixture):
+    out = render_search(fixture("search_shepherd"))
+    lines = out.splitlines()
+    assert lines[0] == 'Verses containing "shepherd" (KJV) — 1 match:'
+    assert lines[1] == "Psalms 23:1 (KJV) — The LORD is my shepherd; I shall not want."
+    assert "<mark>" not in out
+    assert "[excerpt]" not in out
+
+
+def test_search_ellipsized_snippet_is_marked_excerpt_with_footer(fixture):
+    out = render_search(fixture("search_grieved"))
+    lines = out.splitlines()
+    assert lines[1].startswith("John 21:17 (KJV) [excerpt] — ")
+    assert lines[-1] == (
+        "Lines marked [excerpt] are partial — use lookup_verse for the full verse."
+    )
+
+
+def test_search_multi_renders_one_line_per_matching_translation(fixture):
+    out = render_search(fixture("search_loved_multi"))
+    lines = out.splitlines()
+    assert lines[0] == 'Verses containing "loved" (KJV, WEB) — 1 match:'
+    assert lines[1].startswith("John 3:16 (KJV) — For God so loved the world,")
+    assert lines[2].startswith("John 3:16 (WEB) — For God so loved the world,")
+
+
+def test_search_zero_hits_route_to_search_by_meaning(fixture):
+    out = render_search(fixture("search_zero"))
+    assert out == (
+        'No verses contain "zebra" in KJV — for ideas or themes rather than'
+        " exact wording, try search_by_meaning."
+    )
+
+
+def test_search_truncation_uses_true_total(fixture):
+    payload = fixture("search_shepherd")
+    payload["total"] = 14
+    out = render_search(payload)
+    assert "Showing 1 of 14 — raise limit (max 25) for more." in out
+
+
+def test_render_translations_lines(fixture):
+    out = render_translations(fixture("resource_translations"))
+    lines = out.splitlines()
+    assert lines[0] == "Loaded translations:"
+    assert lines[1] == "KJV — KJV (synthetic) (en) — Public domain."
+    assert len(lines) == 5
+
+
+def test_render_books_lines(fixture):
+    out = render_books(fixture("resource_books"))
+    lines = out.splitlines()
+    assert lines[1] == "GEN — Genesis (OT, 1 chapter)"
+    assert "EXO — Exodus (OT)" in lines[2]  # no loaded chapters -> no count
+    assert len(lines) == 67

@@ -1,0 +1,17 @@
+{
+  "query": "grieved",
+  "translation": "KJV",
+  "book": null,
+  "limit": 10,
+  "offset": 0,
+  "total": 1,
+  "hits": [
+    {
+      "book": "JHN",
+      "chapter": 21,
+      "verse": 17,
+      "reference": "John 21:17",
+      "snippet": "He saith unto him the third time, Simon, son of Jonas, lovest thou me? Peter was <mark>grieved</mark> because he said unto him the third time, Lovest thou me? And he said unto…"
+    }
+  ]
+}

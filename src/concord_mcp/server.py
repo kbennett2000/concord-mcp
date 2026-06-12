@@ -22,26 +22,37 @@ from concord_mcp.backends import (
 )
 from concord_mcp.config import Config
 from concord_mcp.render import (
+    render_books,
     render_cross_references,
     render_journey_detail,
     render_journeys_list,
     render_places,
     render_random,
+    render_search,
     render_semantic,
     render_strongs,
     render_topic_candidates,
     render_topic_verses,
+    render_translations,
     render_verses,
     render_word_study,
     topic_zero_match,
 )
 
 INSTRUCTIONS = (
-    "Read-only Scripture tools backed by a Concord instance the operator"
-    " controls. Use lookup_verse when you have a reference and"
-    " search_by_meaning when you have an idea or theme. Every verse comes"
-    " back tagged 'Book Chapter:Verse (TRANSLATION)' — quote and cite it"
-    " exactly as returned."
+    "Read-only Scripture study tools backed by a Concord instance the"
+    " operator controls. Routing: lookup_verse when you have a reference;"
+    " search_keyword for exact wording; search_by_meaning for ideas and"
+    " themes; topic_verses for classic study subjects (Nave's curated"
+    " index); cross_references for passages linked to a verse; word_study"
+    " for a verse's original-language words; strongs_entry for a Strong's"
+    " id (G26, H7225); places_for_passage for where things happened;"
+    " journeys for curated route reconstructions; random_verse for one"
+    " random verse. Every verse returns tagged 'Book Chapter:Verse"
+    " (TRANSLATION)' — quote and cite it exactly as returned. Place"
+    " statuses and journey attributions are honest: 'unknown' means no one"
+    " knows, never guess coordinates. The resources concord://translations"
+    " and concord://books list what's loaded."
 )
 
 READ_ONLY = ToolAnnotations(
@@ -135,6 +146,20 @@ TOPIC_VERSES_DESCRIPTION = (
     " 'Book Chapter:Verse (TRANSLATION)'."
 )
 
+SEARCH_KEYWORD_DESCRIPTION = (
+    "Find verses containing an exact word or phrase. Use this when the"
+    " wording matters — a phrase you remember ('still waters'), a word"
+    " you're tracing ('propitiation') — and quote multi-word phrases"
+    ' ("still waters") to match them exactly. Searches one translation by'
+    " default (the server's configured KJV); pass translations (e.g."
+    " ['KJV', 'WEB']) to see which translations' wording matches, side by"
+    " side. Returns up to limit verses (default 10, max 25) with the true"
+    " total, each tagged so you can lookup_verse the full text; lines"
+    " marked [excerpt] are partial — lookup_verse the reference for the"
+    " full text. If you have a reference, use lookup_verse; for ideas"
+    " rather than wording, use search_by_meaning."
+)
+
 PLACES_FOR_PASSAGE_DESCRIPTION = (
     "List the places a passage names — with coordinates only where an"
     " identification is actually confident. Use after reading a passage when"
@@ -183,6 +208,7 @@ RANDOM_HINT = (
     "Filters: book takes a name or USFM id like 'John' or 'PSA'; testament"
     " must be 'OT' or 'NT'; contradictory filters match no verse."
 )
+KEYWORD_HINT = 'Quote multi-word phrases ("still waters"); avoid stray punctuation.'
 
 
 def _pick_topic(wanted: str, candidates: list[dict]) -> dict | None:
@@ -523,6 +549,60 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
         except BackendError as exc:
             return render_error(exc, RANDOM_HINT)
         return render_random(payload)
+
+    @mcp.tool(annotations=READ_ONLY, description=SEARCH_KEYWORD_DESCRIPTION)
+    async def search_keyword(
+        query: Annotated[
+            str,
+            Field(
+                description=(
+                    "The word or quoted phrase to find, e.g. 'propitiation'"
+                    " or '\"still waters\"'."
+                )
+            ),
+        ],
+        translations: Annotated[
+            list[str] | None,
+            Field(
+                description=(
+                    "Translation ids to search side by side, e.g."
+                    " ['KJV', 'WEB']. Default: the server's configured"
+                    " translation (KJV)."
+                )
+            ),
+        ] = None,
+        limit: Annotated[
+            int,
+            Field(description="Maximum verses to return. Default 10, capped at 25."),
+        ] = 10,
+    ) -> str:
+        limit = max(1, min(limit, config.max_results))
+        try:
+            payload = await backend.search_keyword(
+                query, translations=translations, limit=limit
+            )
+        except BackendError as exc:
+            return render_error(exc, KEYWORD_HINT)
+        return render_search(payload)
+
+    @mcp.resource(
+        "concord://translations",
+        title="Loaded translations",
+        description="The translations loaded in the connected Concord, with attribution.",
+        mime_type="text/plain",
+    )
+    async def translations_resource() -> str:
+        # Fetched per read: cheap, and always current with the connected Concord.
+        return render_translations(await backend.translations())
+
+    @mcp.resource(
+        "concord://books",
+        title="Book catalog",
+        description="The 66-book catalog with testaments and chapter counts.",
+        mime_type="text/plain",
+    )
+    async def books_resource() -> str:
+        return render_books(await backend.books())
 
     return mcp
 

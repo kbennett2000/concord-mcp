@@ -1,0 +1,36 @@
+{
+  "translations": [
+    {
+      "id": "KJV",
+      "name": "KJV (synthetic)",
+      "language": "en",
+      "direction": "ltr",
+      "versification": "standard",
+      "attribution": "Public domain."
+    },
+    {
+      "id": "SBLGNT",
+      "name": "SBLGNT (synthetic)",
+      "language": "en",
+      "direction": "ltr",
+      "versification": "standard",
+      "attribution": "Public domain."
+    },
+    {
+      "id": "WEB",
+      "name": "WEB (synthetic)",
+      "language": "en",
+      "direction": "ltr",
+      "versification": "standard",
+      "attribution": "Public domain."
+    },
+    {
+      "id": "YLT",
+      "name": "YLT (synthetic)",
+      "language": "en",
+      "direction": "ltr",
+      "versification": "standard",
+      "attribution": "Public domain."
+    }
+  ]
+}
