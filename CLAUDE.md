@@ -58,7 +58,7 @@ makes the repo harder for that reader, it needs a very good reason.
 
 - Python 3.12 (pinned in `.python-version` — keep matching Concord's pin),
   uv-managed, single package under `src/concord_mcp/`.
-- MCP Python SDK (`mcp`, FastMCP server API), **stdio** transport.
+- MCP Python SDK v2 (`mcp>=2,<3`, `MCPServer` API), **stdio** transport.
 - `httpx` for the HTTP backend; `bible-core`/`bible-semantic` (pinned git
   subdirectory deps) for the in-process backend from slice 2 onward.
 - `ruff` for lint + format — scoped to `src/` and `tests/`; never sweep
