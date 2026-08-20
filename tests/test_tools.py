@@ -3,7 +3,7 @@
 import httpx
 import pytest
 import respx
-from mcp.shared.memory import create_connected_server_and_client_session
+from mcp.client import Client
 
 from concord_mcp.backends import HttpBackend
 from concord_mcp.config import Config
@@ -21,7 +21,7 @@ def server():
 
 
 async def test_lists_exactly_ten_read_only_tools(server):
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.list_tools()
 
     tools = {tool.name: tool for tool in result.tools}
@@ -38,16 +38,16 @@ async def test_lists_exactly_ten_read_only_tools(server):
         "search_keyword",
     }
     for tool in tools.values():
-        assert tool.annotations.readOnlyHint is True
-        assert tool.annotations.destructiveHint is False
-        assert tool.annotations.openWorldHint is False
+        assert tool.annotations.read_only_hint is True
+        assert tool.annotations.destructive_hint is False
+        assert tool.annotations.open_world_hint is False
         # The one annotation difference in the surface (SPEC §4).
         expected_idempotent = tool.name != "random_verse"
-        assert tool.annotations.idempotentHint is expected_idempotent
+        assert tool.annotations.idempotent_hint is expected_idempotent
 
 
 async def test_descriptions_carry_the_search_disambiguation(server):
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.list_tools()
 
     by_name = {tool.name: tool.description for tool in result.tools}
@@ -68,13 +68,13 @@ async def test_lookup_verse_returns_tagged_text(server, fixture):
     respx.get(f"{BASE}/v1/verses/John%203%3A16").respond(
         json=fixture("verses_john316_kjv_web")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool(
             "lookup_verse",
             {"reference": "John 3:16", "translations": ["kjv", "web"]},
         )
 
-    assert result.isError is False
+    assert result.is_error is False
     text = result.content[0].text
     assert "John 3:16 (KJV) — For God so loved the world," in text
     assert "John 3:16 (WEB) — " in text
@@ -83,7 +83,7 @@ async def test_lookup_verse_returns_tagged_text(server, fixture):
 @respx.mock
 async def test_search_by_meaning_returns_scored_lines(server, fixture):
     respx.get(f"{BASE}/v1/semantic-search").respond(json=fixture("semantic_anxious"))
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool(
             "search_by_meaning", {"query": "do not be anxious"}
         )
@@ -98,7 +98,7 @@ async def test_limit_is_clamped_to_max_results(server, fixture):
     route = respx.get(f"{BASE}/v1/semantic-search").respond(
         json=fixture("semantic_anxious")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         await session.call_tool("search_by_meaning", {"query": "shepherd", "limit": 99})
 
     assert route.calls.last.request.url.params["limit"] == "25"
@@ -109,7 +109,7 @@ async def test_bad_reference_returns_correctable_text(server, fixture):
     respx.get(url__startswith=f"{BASE}/v1/verses/").respond(
         status_code=404, json=fixture("error_unknown_book")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("lookup_verse", {"reference": "Hezekiah 3:16"})
 
     text = result.content[0].text
@@ -123,7 +123,7 @@ async def test_unreachable_concord_names_the_url_and_the_fix(server):
     respx.get(url__startswith=f"{BASE}/v1/").mock(
         side_effect=httpx.ConnectError("refused")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("lookup_verse", {"reference": "John 3:16"})
 
     text = result.content[0].text
@@ -136,7 +136,7 @@ async def test_word_study_end_to_end_labels_verse_blocks(server, fixture):
     respx.get(f"{BASE}/v1/verses/John%2021%3A15-17/words").respond(
         json=fixture("words_john211517")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("word_study", {"reference": "John 21:15-17"})
 
     text = result.content[0].text
@@ -147,7 +147,7 @@ async def test_word_study_end_to_end_labels_verse_blocks(server, fixture):
 @respx.mock
 async def test_topic_verses_ambiguous_returns_candidates(server, fixture):
     respx.get(f"{BASE}/v1/topics").respond(json=fixture("topics_q_faith"))
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("topic_verses", {"topic": "fait"})
 
     text = result.content[0].text
@@ -162,7 +162,7 @@ async def test_topic_verses_follows_and_labels_a_redirect(server, fixture):
     respx.get(f"{BASE}/v1/topics/care/verses").respond(
         json=fixture("topic_care_verses")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("topic_verses", {"topic": "kindness"})
 
     text = result.content[0].text
@@ -176,7 +176,7 @@ async def test_strongs_entry_with_occurrences(server, fixture):
     respx.get(f"{BASE}/v1/strongs/G5368/verses").respond(
         json=fixture("strongs_g5368_verses_p2")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool(
             "strongs_entry", {"strongs_id": "G5368", "include_verses": True}
         )
@@ -191,7 +191,7 @@ async def test_unknown_strongs_id_self_corrects(server, fixture):
     respx.get(url__startswith=f"{BASE}/v1/strongs/").respond(
         status_code=404, json=fixture("error_unknown_strongs")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("strongs_entry", {"strongs_id": "Q99"})
 
     text = result.content[0].text
@@ -204,7 +204,7 @@ async def test_places_for_passage_renders_the_nod_line(server, fixture):
     respx.get(f"{BASE}/v1/verses/Genesis%204%3A16/places").respond(
         json=fixture("places_gen416")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool(
             "places_for_passage", {"reference": "Genesis 4:16"}
         )
@@ -219,7 +219,7 @@ async def test_unknown_journey_enumerates_valid_ids(server, fixture):
         status_code=404, json=fixture("error_unknown_journey")
     )
     respx.get(f"{BASE}/v1/journeys").respond(json=fixture("journeys_list"))
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("journeys", {"journey_id": "paul-fourth"})
 
     text = result.content[0].text
@@ -229,7 +229,7 @@ async def test_unknown_journey_enumerates_valid_ids(server, fixture):
 @respx.mock
 async def test_random_verse_returns_tagged_line(server, fixture):
     respx.get(f"{BASE}/v1/random").respond(json=fixture("random_gen_ylt"))
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("random_verse", {"book": "Gen"})
 
     text = result.content[0].text
@@ -241,7 +241,7 @@ async def test_random_no_match_self_corrects(server, fixture):
     respx.get(f"{BASE}/v1/random").respond(
         status_code=404, json=fixture("error_no_match")
     )
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool(
             "random_verse", {"book": "Gen", "testament": "NT"}
         )
@@ -264,7 +264,7 @@ async def test_instructions_route_all_ten_tools(server):
         "journeys",
         "random_verse",
     )
-    instructions = server._mcp_server.instructions
+    instructions = server.instructions
     for name in names:
         assert name in instructions
     assert "quote and cite it exactly as returned" in instructions
@@ -273,7 +273,7 @@ async def test_instructions_route_all_ten_tools(server):
 @respx.mock
 async def test_search_keyword_end_to_end(server, fixture):
     respx.get(f"{BASE}/v1/search").respond(json=fixture("search_shepherd"))
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("search_keyword", {"query": "shepherd"})
 
     text = result.content[0].text
@@ -283,7 +283,7 @@ async def test_search_keyword_end_to_end(server, fixture):
 @respx.mock
 async def test_search_keyword_zero_hits_routes(server, fixture):
     respx.get(f"{BASE}/v1/search").respond(json=fixture("search_zero"))
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         result = await session.call_tool("search_keyword", {"query": "zebra"})
 
     assert "try search_by_meaning" in result.content[0].text
@@ -292,16 +292,27 @@ async def test_search_keyword_zero_hits_routes(server, fixture):
 @respx.mock
 async def test_resources_listed_and_readable(server, fixture):
     respx.get(f"{BASE}/v1/translations").respond(json=fixture("resource_translations"))
-    async with create_connected_server_and_client_session(server) as session:
+    async with Client(server) as session:
         listing = await session.list_resources()
         resources = {str(r.uri): r for r in listing.resources}
         assert set(resources) == {"concord://translations", "concord://books"}
         assert resources["concord://translations"].title == "Loaded translations"
 
-        from pydantic import AnyUrl
-
-        read = await session.read_resource(AnyUrl("concord://translations"))
+        read = await session.read_resource("concord://translations")
 
     content = read.contents[0]
-    assert content.mimeType == "text/plain"
+    assert content.mime_type == "text/plain"
     assert "KJV — KJV (synthetic) (en) — Public domain." in content.text
+
+
+@respx.mock
+async def test_resource_read_renders_backend_errors_as_text(server):
+    respx.get(url__startswith=f"{BASE}/v1/").mock(
+        side_effect=httpx.ConnectError("refused")
+    )
+    async with Client(server) as session:
+        read = await session.read_resource("concord://books")
+
+    text = read.contents[0].text
+    assert f"Concord isn't reachable at {BASE}." in text
+    assert "CONCORD_URL" in text

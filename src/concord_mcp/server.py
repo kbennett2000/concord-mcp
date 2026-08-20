@@ -1,4 +1,4 @@
-"""The FastMCP server: tool registration, error rendering, entry point.
+"""The MCP server: tool registration, error rendering, entry point.
 
 Tool descriptions are product copy for the model (ADR 0003). Editing one is
 a reviewed change with rationale, never a drive-by edit.
@@ -6,7 +6,7 @@ a reviewed change with rationale, never a drive-by edit.
 
 from typing import Annotated
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 from pydantic import Field
 
@@ -241,8 +241,8 @@ def render_error(exc: BackendError, hint: str) -> str:
     return f"Concord error: {exc}"
 
 
-def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
-    mcp = FastMCP("concord", instructions=INSTRUCTIONS)
+def create_server(config: Config, backend: ConcordBackend) -> MCPServer:
+    mcp = MCPServer("concord", instructions=INSTRUCTIONS)
 
     @mcp.tool(annotations=READ_ONLY, description=LOOKUP_VERSE_DESCRIPTION)
     async def lookup_verse(
@@ -593,7 +593,12 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
     )
     async def translations_resource() -> str:
         # Fetched per read: cheap, and always current with the connected Concord.
-        return render_translations(await backend.translations())
+        # Errors are rendered, not raised: the SDK replaces a raised error's
+        # message with a generic one, and SPEC §8 wants the fix in the text.
+        try:
+            return render_translations(await backend.translations())
+        except BackendError as exc:
+            return render_error(exc, "")
 
     @mcp.resource(
         "concord://books",
@@ -602,7 +607,10 @@ def create_server(config: Config, backend: ConcordBackend) -> FastMCP:
         mime_type="text/plain",
     )
     async def books_resource() -> str:
-        return render_books(await backend.books())
+        try:
+            return render_books(await backend.books())
+        except BackendError as exc:
+            return render_error(exc, "")
 
     return mcp
 

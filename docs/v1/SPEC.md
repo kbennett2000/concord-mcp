@@ -43,7 +43,7 @@ and the destination codebase for `concord-tutorial-ai`.
 MCP client (Claude Desktop / Claude Code / Inspector)
         │  stdio (JSON-RPC)
         ▼
-  concord-mcp  (FastMCP server)
+  concord-mcp  (MCPServer, MCP Python SDK v2)
         │
         │  ConcordBackend protocol
         ├──────────────► HttpBackend ──── httpx ───► Concord /v1 (e.g. LAN)
@@ -51,7 +51,7 @@ MCP client (Claude Desktop / Claude Code / Inspector)
                                                      (bible.db + ONNX artifacts)
 ```
 
-- Single package: `src/concord_mcp/` — `server.py` (FastMCP app + tool
+- Single package: `src/concord_mcp/` — `server.py` (MCPServer app + tool
   registration + entry point), `config.py`, `render.py` (response
   formatting), `backends/` (`base.py` protocol, `http.py`, `inprocess.py`).
   Final module layout is confirmed in the slice 1 plan; the constraint is
@@ -114,8 +114,11 @@ all are `idempotentHint: true` except `random_verse`.
 ## 5. Response format rules
 
 - **Compact plain text**, model-quotable and token-frugal — not raw JSON
-  dumps. Structured output is deferred for v1: dual text+structured isn't
-  cheap in MCP SDK 1.x; revisit at SDK v2.
+  dumps. Structured output stays deferred (§12): SDK v2 did not make dual
+  text+structured cheaper — it still means a per-tool output model and a
+  hand-built `CallToolResult` — so the compact-text decision stands (ADR
+  0005). A `-> str` tool already ships its text as `structuredContent:
+  {"result": …}` automatically; nothing further is promised.
 - Every verse line: `John 3:16 (KJV) — For God so loved the world…`. The
   reference + translation tag is non-negotiable; it is what lets the model
   cite verifiably.
@@ -273,4 +276,6 @@ itself** to PyPI so `uvx concord-mcp` replaces the clone-and-sync install
 (deferred until the git-subdirectory deps have a published path too); an
 **automated eval harness** over `evals/concord-mcp-evals.xml` (v1 ships
 the manual fact-presence protocol — automation needs an LLM-judge or
-stable string contract that the manual pass doesn't).
+stable string contract that the manual pass doesn't); **typed structured
+output** alongside the compact text (per-tool output models + hand-built
+`CallToolResult`; ADR 0005 — widen only if a real client asks for it).

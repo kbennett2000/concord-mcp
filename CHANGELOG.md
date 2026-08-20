@@ -3,6 +3,17 @@
 All notable changes to concord-mcp. Versions follow semver; the format
 loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Changed
+- MCP Python SDK v2 (`mcp>=2.0.0,<3`; ADR 0005, closes #1): `FastMCP` →
+  `MCPServer`. Tool surface, descriptions, and payloads are unchanged.
+- Resource reads (`concord://translations`, `concord://books`) render
+  backend errors as self-correctable text instead of raising — SDK v2 would
+  otherwise replace the message with a generic one.
+- SPEC §5: structured output stays deferred (moved to §12) — v2 did not make
+  dual text+structured output cheaper.
+
 ## [1.0.0] — 2026-06-12
 
 The complete v1 surface: ten read-only tools over Concord's `/v1` API, two
